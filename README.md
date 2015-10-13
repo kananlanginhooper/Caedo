@@ -48,3 +48,5 @@ Each class inherits from the class above it, and can add information.  It is bes
 
 Caedo can be used with javascript framework.  I made the decision support jQuery and bootstrap our of the box, so if you'd like to use them, you don't have to do anything.  If you'd like to not use them, then change /__CAEDO/config/framework.defaults.php, and set $UsejQuery = false; and $UseBootstrap = false;
 
+
+
