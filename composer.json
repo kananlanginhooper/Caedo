@@ -1,0 +1,19 @@
+{
+    "name": "Caedo/Framework",
+    "type": "library",
+    "description": "Caedo Framework Base for PHP",
+    "keywords": ["Caedo","PHP Framework", "DevOps", "Developer First"],
+    "homepage": "https://github.com/kananlanginhooper/Caedo",
+    "license": "GPLv2",
+    "authors": [
+        {
+            "name": "Kanan Langin-Hooper",
+            "email": "Kanan@FloorMechanics.com",
+            "homepage": "https://github.com/kananlanginhooper/Caedo",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.0"
+    }
+}
