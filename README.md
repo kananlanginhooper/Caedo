@@ -1,10 +1,22 @@
 # Caedo
 Caedo PHP Framework.
 
+IN PROGRESS.
+
+I am working on spliting out all of the framework code I can to make it compatible with composer.  I feel being composer compatible is important, it will further reduse the number of files developers working projects.
+
+I will list another project as an example that has the Caedo Framework as a composer dependency.  This project will show how to setup the config files, databases, etc.
+
+I will also include links to zip archives that can be downloaded for quick on the go setup, novice developers and developers without composer support (eg some shared hosting).
+
+
 TODO: 
 
+Remove unneeded directories and sample pages.
+
 changed /__framework to /__CAEDO
-__vendors to __VENDORS
+
+__vendors to vendor
 __StaticIncludes to __STATICINCLUDES
 
 changed the names of some files, like the config.*.inc files, also moved them to /__CAEDO
@@ -13,7 +25,7 @@ also changed caedo.php to __CAEDO.php
 
 We want to make anything that's framework start with __ and be caps at the root level.  It'll make it easier to know what can and cannot be deleted.
 
-__local was also changed to _local
+
 
 __ is for framework files and classes, _ is for local (user) files and classes used by the framework
 
