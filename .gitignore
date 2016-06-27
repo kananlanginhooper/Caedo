@@ -1,6 +1,4 @@
-**/.settings/
-**/vendor/
-**/__STATIC_INCLUDES/
-**/.buildpath
-**/.project
+.settings/
+.buildpath
+.project
 *.bat

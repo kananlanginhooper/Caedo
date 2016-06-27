@@ -5,25 +5,6 @@ This is the core of the Caedo PHP Framework.  This project is here for forking a
 
 The Caedo PHP Framework Example Project is located here: https://github.com/kananlanginhooper/Caedo_Example
 
-# Using the Caedo
-
-The easiest way to use Caedo is by using composer.
-
-{
-    "config": {
-        "vendor-dir": "##VENDOR"
-    },
-    "require": {
-        "kananlanginhooper/Caedo": "*"
-    },
-	"repositories": [
-       	{"type": "vcs", "url": "https://github.com/kananlanginhooper/Caedo.git"}
-    ]
-}
-
-
-You can also see the file 'composer.example.json' for the configuration with correct whitespace.
-
 
 # Framework Notes
 

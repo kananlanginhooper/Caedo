@@ -2,7 +2,7 @@
     "name": "caedo/framework",
     "type": "library",
     "description": "Caedo Framework Base for PHP",
-    "keywords": ["Caedo","PHP Framework", "DevOps", "Developer First"],
+    "keywords": ["Caedo", "PHP Framework", "DevOps", "Developer First"],
     "homepage": "https://github.com/kananlanginhooper/Caedo",
     "license": "GPLv2",
     "authors": [
