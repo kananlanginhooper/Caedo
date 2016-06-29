@@ -487,6 +487,8 @@ function sql_query($SQL, $unbuffered = false){
 	// file_put_contents($RootFolder.'SQL.sql', $SQL.";\n", FILE_APPEND);
 	
 	if(!DB::$dbh) {
+		xdebug_break();
+		xdebug_break();
 	}
 	elseif($SQL == '') {
 		// DebugBreak();
@@ -550,6 +552,9 @@ function sql_query_datasets_only($SQL, $unbuffered = false){
 	// file_put_contents($RootFolder.'SQL.sql', $SQL.";\n", FILE_APPEND);
 	
 	if(!DB::$dbh) {
+		xdebug_break();
+		xdebug_break();
+		xdebug_break();
 	}
 	elseif($SQL == '') {
 		DebugBreak();
@@ -805,15 +810,14 @@ function insert_id(){
 
 // save for later, Server Identity, eg
 DB::$mysqli_read = DB::$mysqli_write = DB::$dbh = false;
-Site::$ShouldHaveDatabase = false;
 Site::$HasDatabase = false;
 
 try {
 	if(Site::$ShouldHaveDatabase) {
 		
 		// Setup Write Connection
-		if(!$DBConnections->GetConnection(Site::$Env, false)) xdebug_break();
-		DB::$connectionDetails_read = DB::$connectionDetails_write = $DBConnections->GetConnection(Site::$Env, false);
+	if(!clsDatabaseConnections::GetConnection(Site::$Env, false)) xdebug_break();
+	DB::$connectionDetails_read = DB::$connectionDetails_write = clsDatabaseConnections::GetConnection(Site::$Env, false);
 		if(!DB::$connectionDetails_write) {
 			xdebug_break();
 			// DebugBreak();
@@ -836,13 +840,13 @@ try {
 			}
 		}
 		
-		$UseReadOnly = (isset(Site::$ReadDatabase));
+	$UseReadOnly = (Site::$ReadDatabase);
 		if($UseReadOnly) {
 			// Setup Write Connection
-			DB::$connectionDetails_read = $DBConnections->GetConnection(Site::$Env, true);
+		DB::$connectionDetails_read = clsDatabaseConnections::GetConnection(Site::$Env, true);
 			if(!DB::$connectionDetails_read) {
 				DB::$mysqli_read = DB::$mysqli_write;
-				DebugBreak();
+			xdebug_break();
 				$Error = 'Could not connect. Error #3381';
 				LogPassThroughError("COULD NOT FIND CONNECTION", Site::$Env);
 			}

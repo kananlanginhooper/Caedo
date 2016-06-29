@@ -596,9 +596,11 @@ class Site {
 	static $ShouldHaveDatabase, $HasDatabase, $WriteDatabase, $HasReadReplica, $ReadDatabase;
 
 	static function setSite(clsSiteConfig $clsSiteConfig){
+	
 		// save the class, don't really need it, but we'll save it anyway for now
 		Site::$clsSiteConfig = $clsSiteConfig;
 		
+		Site::$ShouldHaveDatabase = ($clsSiteConfig->WriteDatabase != '');
 		Site::$Url = $clsSiteConfig->Url;
 		Site::$Site = $clsSiteConfig->Site;
 		Site::$Env = $clsSiteConfig->Env;
