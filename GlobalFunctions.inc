@@ -27,9 +27,8 @@ else {
 	
 	$GC_MaxMem = 270000000;
 	$GC_ClearTo = 250000000;
-	declare(ticks = 100)
-		;
-	register_tick_function('GarbageCollection');
+	// declare(ticks = 100);
+	// register_tick_function('GarbageCollection');
 	
 	// DebugBreak();
 	
@@ -906,6 +905,389 @@ else {
 			return false;
 		}
 	}
+}
+
+//
+//
+//
+//
+//
+//
+//
+//
+// /////////////////////////////////////////////////////////////// ADD IN DATE FUNCTIONS //////////////////////////////////////////////////////////
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+function TimeAddDay(&$OrgTime){
+	$cd = $OrgTime;
+	$OrgTime = mktime(0, 0, 0, date('m', $cd), date('d', $cd) + 1, date('Y', $cd));
+	return $OrgTime;
+}
+
+$DateAddCache;
+
+function DateAddDay(&$OrgDate){
+	global $DateAddCache;
+	$RealOrgDate = $OrgDate;
+	
+	if(isset($DateAddCache) && isset($DateAddCache[$OrgDate])) {
+		$OrgDate = $DateAddCache[$OrgDate];
+		return $OrgDate;
+	}
+	else {
+		if(strlen($OrgDate) == 10) {
+			$regexGood = preg_match('/^([1-3][0-9]{3,3})-(0?[1-9]|1[0-2])-([0-9]{2,2})/', $OrgDate, $regex);
+		}
+		else {
+			$regexGood = false;
+		}
+		if($regexGood && $regex[3] < 28) {
+			// DebugBreak();
+			$OrgDate = $regex[1] . '-' . $regex[2] . '-' . str_pad(($regex[3] + 1), 2, "0", STR_PAD_LEFT);
+			;
+			$DateAddCache[$RealOrgDate] = $OrgDate;
+			return $OrgDate;
+		}
+		
+		$cd = strtotime($OrgDate);
+		$month = date('m', $cd);
+		$day = date('d', $cd);
+		$year = date('Y', $cd);
+		$time = mktime(0, 0, 0, $month, $day + 1, $year);
+		$OrgDate = date('Y-m-d', $time);
+		$DateAddCache[$RealOrgDate] = $OrgDate;
+		return $OrgDate;
+	}
+}
+
+function DateSubDay(&$OrgDate){
+	if(strlen($OrgDate) == 10) {
+		$regexGood = preg_match('/^([1-3][0-9]{3,3})-(0?[1-9]|1[0-2])-([0-9]{2,2})/', $OrgDate, $regex);
+	}
+	else {
+		$regexGood = false;
+	}
+	if($regexGood && $regex[3] > 1) {
+		// DebugBreak();
+		$OrgDate = $regex[1] . '-' . $regex[2] . '-' . str_pad(($regex[3] - 1), 2, "0", STR_PAD_LEFT);
+		;
+		return $OrgDate;
+	}
+	
+	// DebugBreak();
+	$cd = strtotime($OrgDate);
+	$month = date('m', $cd);
+	$day = date('d', $cd);
+	$year = date('Y', $cd);
+	$time = mktime(0, 0, 0, $month, $day - 1, $year);
+	$OrgDate = date('Y-m-d', $time);
+	return $OrgDate;
+}
+
+function DateAdjustDay_NoRef($OrgDate, $Days){
+	return DateAdjustDay($OrgDate, $Days);
+}
+
+function Date_AdjustDay_NoRef($OrgDate, $Days){
+	return DateAdjustDay_NoRef($OrgDate, $Days);
+}
+
+function DateAdjustDay(&$OrgDate, $Days){
+	// if(strlen($OrgDate) == 10){
+	// $regexGood = preg_match ('/^([1-3][0-9]{3,3})-(0?[1-9]|1[0-2])-([0-9]{2,2})/', $OrgDate, $regex);
+	// }else{$regexGood = false;}
+	// if($regexGood && $regex[3]<28){
+	// DebugBreak();
+	// $OrgDate = $regex[1].'-'.$regex[2].'-'.str_pad(($regex[3]+1), 2, "0", STR_PAD_LEFT);;
+	// return $OrgDate;
+	// }
+	
+	// DebugBreak();
+	$cd = strtotime($OrgDate);
+	$month = date('m', $cd);
+	$day = date('d', $cd);
+	$year = date('Y', $cd);
+	$time = mktime(0, 0, 0, $month, $day + $Days, $year);
+	$OrgDate = date('Y-m-d', $time);
+	return $OrgDate;
+}
+
+function Date_AdjustDay($OrgDate, $Days){
+	return DateAdjustDay($OrgDate, $Days);
+}
+
+function DateFirstOfThisYear(){
+	$year = date('Y', time());
+	$time = mktime(0, 0, 0, 12, 31, $year - 1);
+	$OrgDate = date('Y-m-d', $time);
+	return $OrgDate;
+}
+
+function DateOneYearAgo(){
+	$Year = date('Y', realtime('NE'));
+	$Month = date('m', realtime('NE'));
+	$Day = date('d', realtime('NE'));
+	$time = mktime(0, 0, 0, $Month, $Day, $Year - 1);
+	$OrgDate = date('Y-m-d', $time);
+	return $OrgDate;
+}
+
+function DatePlusDay($OrgDate){
+	$cd = strtotime($OrgDate);
+	$OrgDate = date('Y-m-d', mktime(0, 0, 0, date('m', $cd), date('d', $cd) + 1, date('Y', $cd)));
+	return $OrgDate;
+}
+
+function DateToDateDay($OrgDate){
+	$pos = strpos($OrgDate, ' ');
+	if($pos) {
+		$OrgDate = substr($OrgDate, 0, $pos);
+	}
+	elseif(strlen($OrgDate) == 10 && preg_match('/^([1-3][0-9]{3,3})-(0?[1-9]|1[0-2])-(0?[1-9]|[1-2][1-9]|3[0-1])/', $OrgDate)) {
+		// matches length and regex, use as is
+		// DebugBreak();
+	}
+	else {
+		// DebugBreak();
+		$cd = strtotime($OrgDate);
+		$month = date('m', $cd);
+		$day = date('d', $cd);
+		$year = date('Y', $cd);
+		$time = mktime(0, 0, 0, $month, $day, $year);
+		$OrgDate = date('Y-m-d', $time);
+	}
+	return $OrgDate;
+}
+
+function TimeToTimeDay($OrgTime){
+	$OrgTime = date('Y-m-d', mktime(0, 0, 0, date('m', $OrgTime), date('d', $OrgTime), date('Y', $OrgTime)));
+	return strtotime($OrgTime);
+}
+
+function DateToTimeDay($OrgDate){
+	$cd = strtotime($OrgDate);
+	$OrgDate = date('Y-m-d', mktime(0, 0, 0, date('m', $cd), date('d', $cd), date('Y', $cd)));
+	$OrgDate = strtotime($OrgDate);
+	return $OrgDate;
+}
+
+function SqlDatePlusDay($SqlDate){
+	$cd = strtotime($SqlDate);
+	$OrgDate = date('Y-m-d', mktime(0, 0, 0, date('m', $cd), date('d', $cd) + 1, date('Y', $cd)));
+	return $OrgDate;
+}
+
+function SqlDateMinusDay($SqlDate){
+	$cd = strtotime($SqlDate);
+	$OrgDate = date('Y-m-d', mktime(0, 0, 0, date('m', $cd), date('d', $cd) - 1, date('Y', $cd)));
+	return $OrgDate;
+}
+
+function isValidSqlDate($SqlDate){
+	// simple, stupid and expensive, but cheap to program
+	return ($SqlDate == TimeToSqlDate(strtotime($SqlDate)) || $SqlDate == TimeToSqlDateTime(strtotime($SqlDate)));
+}
+
+function SqlDateTimeToDay($OrgDate){
+	return TimeToSqlDate(DateToTimeDay($OrgDate));
+}
+
+function TimeToDateDay($OrgTime){
+	$OrgTime = date('Y-m-d', mktime(0, 0, 0, date('m', $OrgTime), date('d', $OrgTime), date('Y', $OrgTime)));
+	return $OrgTime;
+}
+
+function TimeToDate($OrgTime){
+	return date('Y-m-d H:i:s', $OrgTime); // -ZeroHour()
+}
+
+function TimeToSqlDateTime($OrgTime){
+	return date('Y-m-d H:i:s', $OrgTime); // -ZeroHour()
+}
+
+function TimeToSqlDate($OrgTime){
+	return date('Y-m-d', $OrgTime); // -ZeroHour()
+}
+
+$DateToTimeCache;
+
+function DateToTime($OrgDate){
+	global $DateToTimeCache;
+	// $$$ add something here to see if we're already done a conversion, and store.
+	// if($dateCounter%100==0) DebugBreak();
+	
+	if(isset($DateToTimeCache) && isset($DateToTimeCache[$OrgDate])) return $DateToTimeCache[$OrgDate];
+	else {
+		// if(count($DateToTimeCache)>10000) unset($DateToTimeCache);
+		$Time = strtotime($OrgDate);
+		$DateToTimeCache[$OrgDate] = $Time;
+		return $Time;
+	}
+}
+
+function FormatDate(&$OrgDate){
+	$OrgDate = strtotime($OrgDate);
+	return $OrgDate;
+}
+
+if(!function_exists('realtimePOSubmit')) {
+
+	function realtimePOSubmit(){
+		return timetosql(realtime('NE') + (30 * 60)); // add 30 mins to central time
+	}
+}
+
+function realtime($Location = ''){
+	global $dateadjust;
+	// if(isset($dateadjust) && !trim($dateadjust)==''){ /* do nothing, we've already set this, to move the clock */ }
+	if(!$Location) {
+		if(isset($_SESSION['Location'])) {
+			$Location = $_SESSION['Location'];
+		}
+		else {
+			$Location = 'UTC';
+		}
+	}
+	else {
+		if($_SERVER['SERVER_NAME'] == 'localhost') $Location = 'localhost';
+	}
+	if($Location == 'localhost') {
+		$dateadjust = 0;
+	}
+	elseif($Location == 'RN') {
+		$dateadjust = -2;
+	}
+	elseif($Location == 'WV') {
+		$dateadjust = +1;
+	}
+	elseif($Location == 'NE') {
+		$dateadjust = 0;
+	}
+	elseif($Location == 'UTC') {
+		$dateadjust = 8;
+	}
+	return time() + ($dateadjust * 60 * 60);
+}
+
+function timeFromUTC($StdServerTime){
+	if($_SESSION['Location'] == 'WV') $dateadjust = +6;
+	if($_SESSION['Location'] == 'NE') $dateadjust = +6;
+}
+
+function realdate($Location = ''){
+	return TimeToDateDay(realtime($Location));
+}
+
+function realdatetime($Location = ''){
+	return TimeToDate(realtime($Location));
+}
+
+$realtimesql_ThisRun = false;
+
+function realtimesql($Location = '', $Uncached = false){
+	global $realtimesql_ThisRun;
+	if(!$realtimesql_ThisRun || $Uncached) $realtimesql_ThisRun = timetosql(realtime($Location));
+	return $realtimesql_ThisRun;
+}
+
+function realtimesql_Minus30Min($Location = ''){
+	return realtimesql_PlusMins($Location, -30);
+}
+
+function realtimesql_Plus30Min($Location = ''){
+	return realtimesql_PlusMins($Location, 30);
+}
+
+function realtimesql_PlusMins($Location, $Minutes){
+	return timetosql(realtime($Location) + ($Minutes * 60));
+}
+
+function date_SqlTimePlusMins($SQLTime, $Minutes){
+	return timetosql(strtotime($SQLTime) + ($Minutes * 60));
+}
+
+function date_SqlTimePlusMinusDays($SQLTime, $Days){
+	return timetosql(strtotime($SQLTime) + ($Days * 24 * 60 * 60));
+}
+
+function realtimedatesql($Location = ''){
+	return timetosqlday(realtime($Location));
+}
+
+$ZeroHour = -1;
+
+function ZeroHour(){
+	global $ZeroHour;
+	if($ZeroHour == -1) {
+		$dateadjust = 0;
+		$dateadjust = 1;
+		if($_SERVER['SERVER_NAME'] == 'localhost') $dateadjust = 0;
+		$ZeroHour = $dateadjust * 60 * 60;
+	}
+	return $ZeroHour;
+}
+
+function sqltotime($sqltime){
+	// if(isset($dateadjust) && !trim($dateadjust)==''){ /* do nothing, we've already set this, to move the clock */ }
+	// if(!$Location){
+	if(isset($_SESSION['Location'])) {
+		$Location = $_SESSION['Location'];
+	}
+	else {
+		$Location = 'UTC';
+	}
+	// }else{
+	if($_SERVER['SERVER_NAME'] == 'localhost') $Location = 'localhost';
+	// }
+	if($Location == 'localhost') {
+		$dateadjust = 0;
+	}
+	elseif($Location == 'RN') {
+		$dateadjust = -8;
+	}
+	elseif($Location == 'WV') {
+		$dateadjust = -5;
+	}
+	elseif($Location == 'NE') {
+		$dateadjust = -6;
+	}
+	elseif($Location == 'UTC') {
+		$dateadjust = 10;
+	}
+	return strtotime($sqltime) + ($dateadjust * 60 * 60);
+}
+
+function realTimeDate($phptime, $location = ''){
+	return TimeToTimeDay(realtime($location));
+}
+
+function timetosql($phptime){
+	return date('Y-m-d H:i:s', $phptime);
+}
+
+function timetosqlday($phptime){
+	$OrgDate = date('Y-m-d', mktime(0, 0, 0, date('m', $phptime), date('d', $phptime), date('Y', $phptime)));
+	return $OrgDate;
+}
+
+function FriendlyDate($sqltime){
+	$strTime = strtotime($sqltime);
+	$OrgDate = date('F j, Y, g:i a', $strTime);
+	return $OrgDate;
+}
+
+function SqlToFriendlyDate($sqltime){
+	$strTime = TimeToTimeDay(strtotime($sqltime));
+	$OrgDate = date('m/d/Y', $strTime);
+	return $OrgDate;
 }
 
 ?>
