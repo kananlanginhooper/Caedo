@@ -266,8 +266,7 @@ else {
 	// Load in global functions
 	require_once $CaedoRootFolder . "GlobalFunctions.inc";
 	
-	// Then run the Config starter, this should include a reference to '__CAEDO_CONFIG/LocalFunctions.inc'
-	require_once $RootFolder . '__CAEDO_CONFIG/__config.Starter.inc';
+	include_once $RootFolder . '__CAEDO_CONFIG/__config.Starter_Early.inc';
 	
 	//
 	//
@@ -907,4 +906,10 @@ else {
 	
 	__Tag('framework Loaded');
 }
+
+
+// Then run the Config starter, this should include a reference to '__CAEDO_CONFIG/LocalFunctions.inc'
+include_once $RootFolder . '__CAEDO_CONFIG/__config.Starter_Late.inc';
+
+
 ?>
