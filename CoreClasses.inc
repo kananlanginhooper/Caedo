@@ -14,28 +14,28 @@ else {
 		protected $__PageType = 'HTML5'; // Options HTML5, HTML, JSON, RAW -- These are validated in __destruct
 		                                 
 		// Before Body Tag
-		protected $__arrHTMLHead = array();
+		private $__arrHTMLHead = array();
 		protected $__PageTitle = '';
-		protected $__arrCSS_Early = array();
+		private $__arrCSS_Early = array();
 		
 		// - Early Javascript
-		protected $__HasJavaScript_Early_Been_Processed = false;
-		protected $__arrJavaScript_Early = array();
-		protected $__arrJavaScript_Early_Source = array();
-		protected $__arrJavaScript_Early_files = array();
-		protected $__arrJavaScript_Early_Ready_For_Output = array();
+		private $__HasJavaScript_Early_Been_Processed = false;
+		private $__arrJavaScript_Early = array();
+		private $__arrJavaScript_Early_Source = array();
+		private $__arrJavaScript_Early_files = array();
+		private $__arrJavaScript_Early_Ready_For_Output = array();
 		
 		// Body
-		protected $__arrBody = array();
-		protected $__arrBodyEnd = array();
+		private $__arrBody = array();
+		private $__arrBodyEnd = array();
 		
 		// After Body Tag
 		// - Early Javascript
-		protected $__HasJavaScript_Late_Been_Processed = false;
-		protected $__arrJavaScript_Late = array();
-		protected $__arrJavaScript_Late_Source = array();
-		protected $__arrJavaScript_Late_files = array();
-		protected $__arrJavaScript_Late_Ready_For_Output = array();
+		private $__HasJavaScript_Late_Been_Processed = false;
+		private $__arrJavaScript_Late = array();
+		private $__arrJavaScript_Late_Source = array();
+		private $__arrJavaScript_Late_files = array();
+		private $__arrJavaScript_Late_Ready_For_Output = array();
 		
 		// Tidy Comment
 		protected $__TidyHTMLComment = '<!-- Framework will Insert Tidy Message Here - This tag will be replaced with the Tidy HTML messages and Stats on Memory usage and Run time - DO NOT EDIT THIS COMMENT -->';
@@ -57,7 +57,7 @@ else {
 			$this->__AddGeneralFunctionSets();
 			
 			// we're autoloading jquery, and making it a dependency of the framework. I think it will be used in most
-			$this->__JavaScript("//code.jquery.com/jquery-2.1.3.min.js", false, true);
+			$this->__JavaScript("//code.jquery.com/jquery-2.1.3.min.js", false, true, 1000);
 			
 			// Save Site globals from Caedo.inc
 			$this->__RootFolder = Site::$RootFolder;
@@ -105,24 +105,55 @@ else {
 			// for now, I'm not building out CSS processing. It'll happen, but more worried about JS at this point
 		}
 
-		protected function __JavaScript($SourceOrLink, $IsSource = false, $IsEarly = false){
+		private function AddToArrayNice(&$arr, $Value, $Position = null){
+			// we're dealing with optional priorities, Higher priorities are better than lower ones
+			// duplicate prioritys are not allowed
+			// if not priority is passed in, it needs to be put in the lowest slot
+			
+			// do we have a position?
+			if($Position !== null) {
+				// Yep
+				
+				// is it already taken?
+				if(isset($arr[$Position])) {
+					// Yep
+					xdebug_break();
+					die('Error: JavaScript Priority Already Used');
+				}
+				else {
+					// nope, we're good, set the value
+					$arr[$Position] = $Value;
+				}
+			}
+			else {
+				// Nope, no position
+				$Keys = array_keys($arr);
+				$Keys[] = 0; // so that non-Positioned entries will always be less than 0
+				$Position = min($Keys) - 1;
+				$arr[$Position] = $Value;
+			}
+		
+		}
+
+		protected function __JavaScript($SourceOrLink, $IsSource = false, $IsEarly = false, $Priority = null){
 			// $SourceOrLink = trim($SourceOrLink);
 			
+			// want to make sure you don't have to default a priorty
+			
+			// ?? Do we need to check for this??
+			// if($this->__HasJavaScript_Early_Been_Processed) die('Error: JavaScript Early Has Already Been Processed');
+			
 			if($IsEarly && $IsSource) {
-				if($this->__HasJavaScript_Early_Been_Processed) die('Error: JavaScript Early Has Already Been Processed');
-				$this->__arrJavaScript_Early_Source[] = $SourceOrLink;
+				$this->AddToArrayNice($this->__arrJavaScript_Early_Source, $SourceOrLink, $Priority);
 			}
 			elseif($IsEarly && !$IsSource) {
-				if($this->__HasJavaScript_Early_Been_Processed) die('Error: JavaScript Early Has Already Been Processed');
-				$this->__arrJavaScript_Early_files[] = $SourceOrLink;
+				$this->AddToArrayNice($this->__arrJavaScript_Early_files, $SourceOrLink, $Priority);
 			}
 			elseif(!$IsEarly && $IsSource) {
-				if($this->__HasJavaScript_Late_Been_Processed) die('Error: JavaScript Late Has Already Been Processed');
-				$this->__arrJavaScript_Late_Source[] = $SourceOrLink;
+				$this->AddToArrayNice($this->__arrJavaScript_Late_Source, $SourceOrLink, $Priority);
 			}
 			elseif(!$IsEarly && !$IsSource) {
-				if($this->__HasJavaScript_Late_Been_Processed) die('Error: JavaScript Late Has Already Been Processed');
-				$this->__arrJavaScript_Late_files[] = $SourceOrLink;
+				$this->AddToArrayNice($this->__arrJavaScript_Late_files, $SourceOrLink, $Priority);
 			}
 		
 		}
@@ -132,14 +163,10 @@ else {
 			
 			$this->__HasJavaScript_Early_Been_Processed = true;
 			// to be backwards compatible
-			if(count($this->__arrJavaScript_Early)) {
-				foreach($this->__arrJavaScript_Early as $JavaScriptLine) {
-					$this->__arrJavaScript_Early_Ready_For_Output[] = $JavaScriptLine;
-				}
-			}
 			
 			// files
 			if(count($this->__arrJavaScript_Early_files)) {
+				krsort($this->__arrJavaScript_Early_files);
 				foreach($this->__arrJavaScript_Early_files as $JavaScriptLine) {
 					$this->__arrJavaScript_Early_Ready_For_Output[] = "<script src='" . $JavaScriptLine . "'></script>";
 				}
@@ -147,6 +174,7 @@ else {
 			
 			// source
 			if(count($this->__arrJavaScript_Early_Source)) {
+				krsort($this->__arrJavaScript_Early_Source);
 				$str = "  <script> \n";
 				$str .= "   $( document ).ready(function() { \n";
 				foreach($this->__arrJavaScript_Early_Source as $JavaScriptLine) {
@@ -157,10 +185,18 @@ else {
 				
 				$this->__arrJavaScript_Early_Ready_For_Output[] = $str;
 			}
+			
+			if(count($this->__arrJavaScript_Early)) {
+				krsort($this->__arrJavaScript_Early);
+				foreach($this->__arrJavaScript_Early as $JavaScriptLine) {
+					$this->__arrJavaScript_Early_Ready_For_Output[] = $JavaScriptLine;
+				}
+			}
 		}
 
 		private function __EarlyJavaScript(){
 			if(count($this->__arrJavaScript_Early_Ready_For_Output)) {
+				// ksort($this->__arrJavaScript_Early_Ready_For_Output); // sorting not needed
 				foreach($this->__arrJavaScript_Early_Ready_For_Output as $JavaScriptLine) {
 					print "$JavaScriptLine\n";
 				}
@@ -173,6 +209,7 @@ else {
 			$this->__HasJavaScript_Late_Been_Processed = true;
 			// to be backwards compatible
 			if(count($this->__arrJavaScript_Late)) {
+				krsort($this->__arrJavaScript_Late);
 				foreach($this->__arrJavaScript_Late as $JavaScriptLine) {
 					$this->__arrJavaScript_Late_Ready_For_Output[] = $JavaScriptLine;
 				}
@@ -180,6 +217,7 @@ else {
 			
 			// files
 			if(count($this->__arrJavaScript_Late_files)) {
+				krsort($this->__arrJavaScript_Late_files);
 				foreach($this->__arrJavaScript_Late_files as $JavaScriptLine) {
 					$this->__arrJavaScript_Late_Ready_For_Output[] = "<script src='" . $JavaScriptLine . "'></script>";
 				}
@@ -187,6 +225,7 @@ else {
 			
 			// source
 			if(count($this->__arrJavaScript_Late_Source)) {
+				krsort($this->__arrJavaScript_Late_Source);
 				$str = "  <script> \n";
 				$str .= "   $( document ).ready(function() { \n";
 				foreach($this->__arrJavaScript_Late_Source as $JavaScriptLine) {
@@ -201,6 +240,7 @@ else {
 
 		private function __LateJavaScript(){
 			if(count($this->__arrJavaScript_Late_Ready_For_Output)) {
+				// ksort($this->__arrJavaScript_Late_Ready_For_Output); // sorting not needed
 				foreach($this->__arrJavaScript_Late_Ready_For_Output as $JavaScriptLine) {
 					print "$JavaScriptLine\n";
 				}
@@ -272,7 +312,7 @@ else {
 			}
 			else {
 				
-				// Head Section
+				// Head Section -- There can be some....garbage in here, always put it last when creating the head tag
 				$this->__PrintCapture_Start();
 				$this->HEAD(); // call the HEAD from the page class
 				$PageHEAD = $this->__PrintCapture_EndReturn();
@@ -300,8 +340,8 @@ else {
 				
 				$this->__HEAD_open();
 				$this->__CSS();
-				print $PageHEAD; // yeah, I'm reusing this varible.
 				$this->__EarlyJavaScript();
+				print $PageHEAD; // yeah, I'm reusing this varible.
 				$this->__HEAD_close();
 				
 				$PageHEAD = $this->__PrintCapture_EndReturn();
