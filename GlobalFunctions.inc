@@ -155,28 +155,19 @@ else {
 	}
 
 	function Redirect($DestLink = '', $JS = false, $ReturnInsteadOfPrint = false){
-		global $pathtohttp, $ServerPort;
-		$local_pathtohttp = $pathtohttp;
-		$local_ServerPort = $ServerPort;
-		
-		if($local_ServerPort) {
-			$arrPathExplode = explode("/", $local_pathtohttp);
-			$arrPathExplode[2] .= ':' . $local_ServerPort;
-			$local_pathtohttp = implode($arrPathExplode, '/');
-		}
 		
 		if(!$JS) @ob_end_clean();
 		
 		if($DestLink === '') { // blank link means this page
-			$link = $local_pathtohttp . substr($_SERVER['PHP_SELF'], 1);
+			$link = Site::$pathToSsl . substr($_SERVER['PHP_SELF'], 1);
 		}
-		elseif(strpos($DestLink, 'http') === false) {
+		elseif(strpos($DestLink, 'http') === false && strpos($DestLink, '/') !== false) {
 			
 			$cleanFileName = $DestLink;
 			if(substr($DestLink, 0, 1) == '/' || substr($DestLink, 0, 1) == '\\') {
 				$cleanFileName = substr($DestLink, 1);
 			}
-			$link = $local_pathtohttp . $cleanFileName;
+			$link = Site::$pathToSsl . $cleanFileName;
 		}
 		else {
 			$link = $DestLink;
