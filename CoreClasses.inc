@@ -784,11 +784,20 @@ else {
 			$this->Http_Host = $arrHttp_Host[0];
 			$this->Http_Port = $arrHttp_Host[1];
 			
+			if($this->Http_Port != 80) {
+				$OptionalPort = ':' . $this->Http_Port;
+			}
+			else {
+				$OptionalPort = '';
+			}
+			
 			// this helps with redirection from secure and back.
 			// It is the recomendation to serve all pages over https, there are cases where you can't
 			// unsecured external resources such as javascript and iframes being one of the major ones.
 			
-			$this->PathToHttp = 'http://' . strtolower($_SERVER["HTTP_HOST"]) . '/';
+			$this->PathToHttp = 'http://' . strtolower($_SERVER["HTTP_HOST"]) . $OptionalPort . '/';
+			
+			// for now not allowing port on secure connection
 			
 			if($this->IsLocal) {
 				// At this time we are not offering SSL on localhost.
