@@ -807,6 +807,17 @@ else {
 			return false;
 		}
 	}
+
+	function sql_error(){
+		if(DB::$dbh) {
+			return DB::$mysqli_write->error;
+		}
+		else {
+			LogPassThroughError("SQL ERROR sql_error");
+			return false;
+		}
+	}
+	
 	// ----------------------------- mysqli, new DB connection
 	
 	// save for later, Server Identity, eg
