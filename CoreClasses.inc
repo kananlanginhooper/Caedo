@@ -784,12 +784,13 @@ else {
 			$this->Http_Host = $arrHttp_Host[0];
 			$this->Http_Port = $arrHttp_Host[1];
 			
-			if($this->Http_Port != 80) {
-				$OptionalPort = ':' . $this->Http_Port;
-			}
-			else {
-				$OptionalPort = '';
-			}
+			// Again, not needed in most cases, port number is reflected in $_SERVER["HTTP_HOST"]
+			// if($this->Http_Port != 80) {
+			// $OptionalPort = ':' . $this->Http_Port;
+			// }
+			// else {
+			$OptionalPort = '';
+			// }
 			
 			// this helps with redirection from secure and back.
 			// It is the recomendation to serve all pages over https, there are cases where you can't
@@ -839,21 +840,22 @@ else {
 				$HostToParse = strtolower($HostToParse);
 			}
 			
-			if(strpos($HostToParse, ':')) {
-				$arrPath = explode(':', $HostToParse);
-				if(count($arrPath) != 2) {
-					xdebug_break();
-					die('bad HTTP_HOST in clsSiteConfig::ParseHttp_Host.  Host should have either zero or one colons');
-				}
-				// this is a string, we're going to use it as a string way more often than an int
-				// if the future I could see
-				$arrPath[1] = ':' . $arrPath[1];
-			}
-			else {
-				// no port means port 80 or 443, but browsers are smart enough to fill it in, so unless it's an override, leave it blank
-				$arrPath[0] = $_SERVER['HTTP_HOST'];
-				$arrPath[1] = '';
-			}
+			// Need to check into which webserver is running, this is needed by some and not by others? Not sure.
+			// if(strpos($HostToParse, ':')) {
+			// $arrPath = explode(':', $HostToParse);
+			// if(count($arrPath) != 2) {
+			// xdebug_break();
+			// die('bad HTTP_HOST in clsSiteConfig::ParseHttp_Host. Host should have either zero or one colons');
+			// }
+			// // this is a string, we're going to use it as a string way more often than an int
+			// // if the future I could see
+			// $arrPath[1] = ':' . $arrPath[1];
+			// }
+			// else {
+			// no port means port 80 or 443, but browsers are smart enough to fill it in, so unless it's an override, leave it blank
+			$arrPath[0] = $_SERVER['HTTP_HOST'];
+			$arrPath[1] = '';
+			// }
 			return $arrPath;
 		}
 	}
