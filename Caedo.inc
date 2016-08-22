@@ -366,7 +366,7 @@ else {
 	else {
 
 		function session_active(){
-			return (session_status() == PHP_SESSION_ACTIVE);
+			return (session_status() === PHP_SESSION_ACTIVE);
 		}
 	}
 	
@@ -478,6 +478,8 @@ else {
 
 	function sql_query_or_die($DieMessage){
 		xdebug_break();
+		xdebug_break();
+		xdebug_break();
 		die($DieMessage);
 	}
 
@@ -521,7 +523,8 @@ else {
 			else {
 				$mysqli = DB::$mysqli_write;
 			}
-			$res = $mysqli->query($SQL);
+			
+			$res = $mysqli->query($SQL) or sql_query_or_die($mysqli->error);
 			if(isset($_GET) && isset($_GET['Debug'])) LogPassThroughError($SQL); // log if ?Debug is set
 			                                                                     
 			// }
