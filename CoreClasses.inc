@@ -625,6 +625,8 @@ else {
 		static $Url;
 		static $Site;
 		static $Env;
+		static $Server;
+		static $EnvServer;
 		
 		// URL (Site) overriding
 		static $AllowURLOverride, $URLOverridePassKey;
