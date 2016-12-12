@@ -12,11 +12,12 @@ else {
 		
 		// Setup
 		protected $__PageType = 'HTML5'; // Options HTML5, HTML, JSON, RAW -- These are validated in __destruct
-		                                 
+		public static $__PageMode = 'LIVE'; // Options LIVE, Test, Beta, etc -- These are not validated, these are for developer use when choosing DB connections, when sending emails, and calling outside APIs. Use as it best suits the team.
+					  
 		// Before Body Tag
 		private $__arrHTMLHead = array();
 		protected $__PageTitle = '';
-		private $__arrCSS_Early = array();
+		protected $__arrCSS_Early = array();
 		
 		// - Early Javascript
 		private $__HasJavaScript_Early_Been_Processed = false;
@@ -57,7 +58,7 @@ else {
 			$this->__AddGeneralFunctionSets();
 			
 			// we're autoloading jquery, and making it a dependency of the framework. I think it will be used in most
-			$this->__JavaScript("//code.jquery.com/jquery-2.1.3.min.js", false, true, 1000);
+			$this->__JavaScript("//code.jquery.com/jquery-2.1.3.min.js", false, true, 9999); // use numbers less than 9999
 			
 			// Save Site globals from Caedo.inc
 			$this->__RootFolder = Site::$RootFolder;
@@ -620,13 +621,15 @@ else {
 		static $CDN, $scriptAddress, $CDNDataAddress, $CDNDataBucket;
 		
 		// from SiteConfig
-		static $IsLocal, $IsSecure, $Http_Host, $Http_Port, $PathToHttp, $pathToSsl;
+		static $IsLocal, $IsSecure, $Http_Host, $Http_Port, $PathToHttp, $PathToSsl;
 		
 		static $Url;
 		static $Site;
 		static $Env;
 		static $Server;
 		static $EnvServer;
+		
+		static $Profile;
 		
 		// URL (Site) overriding
 		static $AllowURLOverride, $URLOverridePassKey;
@@ -664,7 +667,7 @@ else {
 			Site::$Http_Host = $clsSiteConfig->Http_Host;
 			Site::$Http_Port = $clsSiteConfig->Http_Port;
 			Site::$PathToHttp = $clsSiteConfig->PathToHttp;
-			Site::$pathToSsl = $clsSiteConfig->pathToSsl;
+			Site::$PathToSsl = $clsSiteConfig->pathToSsl;
 		
 		}
 	}
@@ -762,7 +765,7 @@ else {
 
 	class clsSiteConfig {
 		public $Url, $Site, $Env, $IsLocal, $WriteDatabase, $HasReadReplica, $ReadDatabase, $AllowURLOverride, $URLOverridePassKey, $SessionManager, $SessionManagerPath, $TidyUp, $ShowErrors, $ShowStats;
-		public $IsSecure, $Http_Host, $Http_Port, $PathToHttp, $pathToSsl;
+		public $IsSecure, $Http_Host, $Http_Port, $PathToHttp, $PathToSsl;
 
 		public function __construct($Url, $Site, $Env, $IsLocal, $WriteDatabase, $HasReadReplica, $ReadDatabase, $AllowURLOverride, $URLOverridePassKey, $SessionManager, $SessionManagerPath, $TidyUp, $ShowErrors, $ShowStats){
 			$this->Url = strtolower($Url);

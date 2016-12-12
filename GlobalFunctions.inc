@@ -159,7 +159,7 @@ else {
 		if(!$JS) @ob_end_clean();
 		
 		if($DestLink === '') { // blank link means this page
-			$link = Site::$pathToSsl . substr($_SERVER['PHP_SELF'], 1);
+			$link = Site::$PathToSsl . substr($_SERVER['PHP_SELF'], 1);
 		}
 		elseif(strpos($DestLink, 'http') === false && strpos($DestLink, '/') !== false) {
 			
@@ -167,7 +167,7 @@ else {
 			if(substr($DestLink, 0, 1) == '/' || substr($DestLink, 0, 1) == '\\') {
 				$cleanFileName = substr($DestLink, 1);
 			}
-			$link = Site::$pathToSsl . $cleanFileName;
+			$link = Site::$PathToSsl . $cleanFileName;
 		}
 		else {
 			$link = $DestLink;

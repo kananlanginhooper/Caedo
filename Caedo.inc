@@ -101,6 +101,35 @@ else {
 	Site::$CaedoConfigFolder = $RootFolder . '__CAEDO_CONFIG/';
 	Site::$CaedoRootFolder = $CaedoRootFolder;
 	
+	function UncaughtExceptionHandler($exception){
+		xdebug_break();
+		xdebug_break();
+		xdebug_break();
+		error_log("Internal Error: " . $exception->getMessage() . ' | ' . $exception->getFile() . ":" . $exception->getLine() . ' | ' . $exception->getTraceAsString());
+	
+		if(isset(Site::$IsLocal) && Site::$IsLocal) {
+			echo "<h1>Internal Error: ", $exception->getMessage(), "</h1>\n";
+			echo $exception->getFile() . ":" . $exception->getLine() . " <br />\n";
+			$arrTrace = $exception->getTrace();
+			if($arrTrace) {
+				foreach($arrTrace as $TraceLine) {
+					$args = '';
+					if($TraceLine['args']) {
+						$args = implode(', ', $TraceLine['args']);
+					}
+					echo "{$TraceLine['file']}:{$TraceLine['line']} &nbsp; {$TraceLine['function']}($args) <br />\n";
+				}
+			}
+		}
+		else {
+			echo "<h1>Internal Error</h1>\n";
+			echo "This error has been logged and will be investigated\n";
+			exit();
+		}
+	}
+	
+	set_exception_handler('UncaughtExceptionHandler');
+	
 	//
 	//
 	//
@@ -291,6 +320,7 @@ else {
 	if($SiteConfig) {
 		Site::setSite($SiteConfig);
 		$siteFound = true;
+		session_start();
 	}
 	
 	// this is for direct calls to the server via IP address.
@@ -476,11 +506,11 @@ else {
 		}
 	}
 
-	function sql_query_or_die($DieMessage){
+	function sql_query_or_die($SQL, $DieMessage){
 		xdebug_break();
 		xdebug_break();
 		xdebug_break();
-		die($DieMessage);
+		throw new Exception("$DieMessage | SQL: $SQL");
 	}
 
 	function sql_query($SQL, $unbuffered = false){
@@ -524,7 +554,7 @@ else {
 				$mysqli = DB::$mysqli_write;
 			}
 			
-			$res = $mysqli->query($SQL) or sql_query_or_die($mysqli->error);
+			$res = $mysqli->query($SQL) or sql_query_or_die($SQL, $mysqli->error);
 			if(isset($_GET) && isset($_GET['Debug'])) LogPassThroughError($SQL); // log if ?Debug is set
 			                                                                     
 			// }
