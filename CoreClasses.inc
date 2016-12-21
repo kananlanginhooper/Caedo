@@ -97,7 +97,7 @@ else {
 		private function __CSS(){
 			if(isset($this->__arrCSS_Early) && is_array($this->__arrCSS_Early)) {
 				foreach($this->__arrCSS_Early as $CSSLine) {
-					print '  ' . $CSSLine . "\n";
+					print "<link rel='stylesheet' href='{$CSSLine}'>\n";
 				}
 			}
 		}
@@ -482,7 +482,7 @@ else {
 		}
 
 		protected function BODY(){
-		
+			print "<body>";
 		}
 		
 		//
@@ -643,6 +643,9 @@ else {
 		// Database
 		static $ShouldHaveDatabase, $HasDatabase, $WriteDatabase, $HasReadReplica, $ReadDatabase;
 
+		// CDN
+		static $CDNDataHost, $CDNBucket;
+
 		static function setSite(clsSiteConfig $clsSiteConfig){
 			
 			// save the class, don't really need it, but we'll save it anyway for now
@@ -652,6 +655,9 @@ else {
 			Site::$Url = $clsSiteConfig->Url;
 			Site::$Site = $clsSiteConfig->Site;
 			Site::$Env = $clsSiteConfig->Env;
+			
+			Site::$EnvServer = $clsSiteConfig->Env . '_' . $clsSiteConfig->Url;
+			
 			Site::$IsLocal = $clsSiteConfig->IsLocal;
 			Site::$WriteDatabase = $clsSiteConfig->WriteDatabase;
 			Site::$HasReadReplica = $clsSiteConfig->HasReadReplica;
@@ -667,7 +673,9 @@ else {
 			Site::$Http_Host = $clsSiteConfig->Http_Host;
 			Site::$Http_Port = $clsSiteConfig->Http_Port;
 			Site::$PathToHttp = $clsSiteConfig->PathToHttp;
-			Site::$PathToSsl = $clsSiteConfig->pathToSsl;
+			Site::$PathToSsl = $clsSiteConfig->PathToSsl;
+			Site::$CDNDataHost = $clsSiteConfig->CDNDataHost;
+			Site::$CDNBucket = $clsSiteConfig->CDNBucket;
 		
 		}
 	}
@@ -764,10 +772,10 @@ else {
 	}
 
 	class clsSiteConfig {
-		public $Url, $Site, $Env, $IsLocal, $WriteDatabase, $HasReadReplica, $ReadDatabase, $AllowURLOverride, $URLOverridePassKey, $SessionManager, $SessionManagerPath, $TidyUp, $ShowErrors, $ShowStats;
+		public $Url, $Site, $Env, $IsLocal, $WriteDatabase, $HasReadReplica, $ReadDatabase, $AllowURLOverride, $URLOverridePassKey, $SessionManager, $SessionManagerPath, $TidyUp, $ShowErrors, $ShowStats, $CDNDataHost, $CDNBucket;
 		public $IsSecure, $Http_Host, $Http_Port, $PathToHttp, $PathToSsl;
 
-		public function __construct($Url, $Site, $Env, $IsLocal, $WriteDatabase, $HasReadReplica, $ReadDatabase, $AllowURLOverride, $URLOverridePassKey, $SessionManager, $SessionManagerPath, $TidyUp, $ShowErrors, $ShowStats){
+		public function __construct($Url, $Site, $Env, $IsLocal, $WriteDatabase, $HasReadReplica, $ReadDatabase, $AllowURLOverride, $URLOverridePassKey, $SessionManager, $SessionManagerPath, $TidyUp, $ShowErrors, $ShowStats, $CDNDataHost, $CDNBucket){
 			$this->Url = strtolower($Url);
 			$this->Site = $Site;
 			$this->Env = $Env;
@@ -811,7 +819,7 @@ else {
 				// SSL can be done on localhost, I've just personaly never gotten it totally setup
 				// At some point, someone is going to want this.
 				// Feel free to expand the code to support localhost SSL.
-				$this->pathToSsl = $this->PathToHttp;
+				$this->PathToSsl = $this->PathToHttp;
 			}
 			else {
 				// Again, this is not for localhost, if it was and you were using port based vhosts
@@ -819,7 +827,7 @@ else {
 				// as it stands, we're going to force it to use the browser default of 443
 				// Again, at some point, someone is going to want this.
 				// Feel free to expand the code to support specified port SSL.
-				$this->pathToSsl = 'https://' . strtolower($_SERVER["HTTP_HOST"]) . '/';
+				$this->PathToSsl = 'https://' . strtolower($_SERVER["HTTP_HOST"]) . '/';
 			}
 			
 			$this->WriteDatabase = $WriteDatabase;
@@ -835,6 +843,9 @@ else {
 			$this->TidyUp = $TidyUp;
 			$this->ShowErrors = $ShowErrors;
 			$this->ShowStats = $ShowStats;
+			
+			$this->CDNDataHost = $CDNDataHost;
+			$this->CDNBucket = $CDNBucket;
 		}
 
 		static function ParseHttp_Host($HostToParse = ''){
