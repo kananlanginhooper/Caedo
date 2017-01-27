@@ -100,13 +100,13 @@ else {
 	Site::$RootFolder = $RootFolder;
 	Site::$CaedoConfigFolder = $RootFolder . '__CAEDO_CONFIG/';
 	Site::$CaedoRootFolder = $CaedoRootFolder;
-	
+
 	function UncaughtExceptionHandler($exception){
 		xdebug_break();
 		xdebug_break();
 		xdebug_break();
 		error_log("Internal Error: " . $exception->getMessage() . ' | ' . $exception->getFile() . ":" . $exception->getLine() . ' | ' . $exception->getTraceAsString());
-	
+		
 		if(isset(Site::$IsLocal) && Site::$IsLocal) {
 			echo "<h1>Internal Error: ", $exception->getMessage(), "</h1>\n";
 			echo $exception->getFile() . ":" . $exception->getLine() . " <br />\n";
@@ -317,41 +317,53 @@ else {
 	
 	// need to add URL redirect Authentication
 	
+	session_start();
+	
 	if($SiteConfig) {
 		Site::setSite($SiteConfig);
 		$siteFound = true;
-		session_start();
+		// session_start();
 	}
 	
 	// this is for direct calls to the server via IP address.
 	// This is useful as a hack when using clustered servers. I have a few very specific pages that require websockets to run fast enough.
 	// Once the socket server is started, I need to be sure that I am connecting to the server that is hosting that socket, and not just any server in the cluster.
 	// For now, the websocket program itself authenticates the user, but we need to add code here, perhaps built on the session to verify that this user can indeed request that server config
-	elseif(isset($_GET['Url']) && $_GET['Url'] && $SiteConfig && Site::$AllowURLOverride) {
+	elseif(isset($_GET['Url']) && $_GET['Url']) {
 		
 		// if(strtolower($_SERVER["HTTP_HOST"]) != 'localhost') session_save_path('/tmp');
 		// we need to start the session, there could be session data that is important.
-		session_start();
-		
 		$SiteConfig = clsSiteConfigs::GetSiteConfig($_GET['Url']);
-		if($SiteConfig) {
+		
+		if($SiteConfig && $SiteConfig->AllowURLOverride) {
 			Site::setSite($SiteConfig);
-			$_SESSION['Url'] = strtolower($_GET['Url']);
 			$siteFound = true;
+			// session_start();
+			$_SESSION['Url'] = strtolower($_GET['Url']);
 		}
 	}
 	// this is for repeated calls to the server via IP address.
-	elseif(isset($_SESSION['Url']) && $_SESSION['Url'] && $SiteConfig && Site::$AllowURLOverride) {
+	elseif(isset($_SESSION['Url']) && $_SESSION['Url']) {
 		
 		// if(strtolower($_SERVER["HTTP_HOST"]) != 'localhost') session_save_path('/tmp');
 		// we need to start the session, there could be session data that is important.
-		session_start();
 		
 		$SiteConfig = clsSiteConfigs::GetSiteConfig($_SESSION['Url']);
+		
+		if($SiteConfig && $SiteConfig->AllowURLOverride) {
+			Site::setSite($SiteConfig);
+			$siteFound = true;
+		}
+	}
+	// if we don't have a URL match, and no parameter, load the default site if one is set
+	else {
+		
+		$SiteConfig = clsSiteConfigs::GetDefaultSiteConfig();
+		
 		if($SiteConfig) {
 			Site::setSite($SiteConfig);
-			$_SESSION['Url'] = strtolower($_GET['Url']);
 			$siteFound = true;
+			// session_start();
 		}
 	}
 	
@@ -951,9 +963,7 @@ else {
 	__Tag('framework Loaded');
 }
 
-
 // Then run the Config starter, this should include a reference to '__CAEDO_CONFIG/LocalFunctions.inc'
 include_once $RootFolder . '__CAEDO_CONFIG/__config.Starter_Late.inc';
-
 
 ?>

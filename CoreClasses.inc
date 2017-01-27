@@ -13,7 +13,7 @@ else {
 		// Setup
 		protected $__PageType = 'HTML5'; // Options HTML5, HTML, JSON, RAW -- These are validated in __destruct
 		public static $__PageMode = 'LIVE'; // Options LIVE, Test, Beta, etc -- These are not validated, these are for developer use when choosing DB connections, when sending emails, and calling outside APIs. Use as it best suits the team.
-					  
+		                                    
 		// Before Body Tag
 		private $__arrHTMLHead = array();
 		protected $__PageTitle = '';
@@ -59,7 +59,7 @@ else {
 			
 			// we're autoloading jquery, and making it a dependency of the framework. I think it will be used in most
 			$this->__JavaScript("//code.jquery.com/jquery-2.1.3.min.js", false, true, 9999); // use numbers less than 9999
-			
+			                                                                                 
 			// Save Site globals from Caedo.inc
 			$this->__RootFolder = Site::$RootFolder;
 			$this->__CaedoRootFolder = Site::$CaedoRootFolder;
@@ -642,7 +642,7 @@ else {
 		
 		// Database
 		static $ShouldHaveDatabase, $HasDatabase, $WriteDatabase, $HasReadReplica, $ReadDatabase;
-
+		
 		// CDN
 		static $CDNDataHost, $CDNBucket;
 
@@ -750,14 +750,15 @@ else {
 			if(isset(self::$arrSiteConfigs[$Url])) {
 				return self::$arrSiteConfigs[$Url];
 			}
-			else {
-				if(self::$DefaultSite && isset(self::$arrSiteConfigs[self::$DefaultSite])) {
-					return self::$arrSiteConfigs[self::$DefaultSite];
-				}
-				else {
-					return false;
-				}
+			return false;
+		}
+
+		public static function GetDefaultSiteConfig(){
+			if(self::$DefaultSite && isset(self::$arrSiteConfigs[self::$DefaultSite])) {
+				$SiteConfig = self::$arrSiteConfigs[self::$DefaultSite];
+				return $SiteConfig;
 			}
+			return false;
 		}
 
 		public static function ListSiteConfig(){
@@ -869,7 +870,10 @@ else {
 			// }
 			// else {
 			// no port means port 80 or 443, but browsers are smart enough to fill it in, so unless it's an override, leave it blank
+			
 			$arrPath[0] = $_SERVER['HTTP_HOST'];
+			
+			$arrPath[0] = $HostToParse;
 			$arrPath[1] = '';
 			// }
 			return $arrPath;
