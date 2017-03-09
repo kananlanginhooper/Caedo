@@ -750,15 +750,14 @@ else {
 			if(isset(self::$arrSiteConfigs[$Url])) {
 				return self::$arrSiteConfigs[$Url];
 			}
-			return false;
-		}
-
-		public static function GetDefaultSiteConfig(){
-			if(self::$DefaultSite && isset(self::$arrSiteConfigs[self::$DefaultSite])) {
-				$SiteConfig = self::$arrSiteConfigs[self::$DefaultSite];
-				return $SiteConfig;
+			else {
+				if(self::$DefaultSite && isset(self::$arrSiteConfigs[self::$DefaultSite])) {
+					return self::$arrSiteConfigs[self::$DefaultSite];
+				}
+				else {
+					return false;
+				}
 			}
-			return false;
 		}
 
 		public static function ListSiteConfig(){
@@ -870,10 +869,7 @@ else {
 			// }
 			// else {
 			// no port means port 80 or 443, but browsers are smart enough to fill it in, so unless it's an override, leave it blank
-			
 			$arrPath[0] = $_SERVER['HTTP_HOST'];
-			
-			$arrPath[0] = $HostToParse;
 			$arrPath[1] = '';
 			// }
 			return $arrPath;
@@ -893,6 +889,7 @@ else {
 
 	class Instance {
 		public static $PublicDNS;
+		public static $PublicIP;
 		public static $InstanceID;
 		public static $InstanceType;
 		public static $LoggingEnabled = false;
@@ -904,10 +901,26 @@ else {
 		}
 
 		public static function FindInstanceDetails(){
-			self::$PublicDNS = shell_exec("/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-hostname");
-			self::$PublicDNS = shell_exec("/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-ipv4");
-			self::$InstanceID = shell_exec("/usr/bin/curl -s http://169.254.169.254/latest/meta-data/instance-id");
-			self::$InstanceType = shell_exec("/usr/bin/curl -s http://169.254.169.254/latest/meta-data/instance-type");
+			
+			$client = new GuzzleHttp\Client();
+			
+			// self::$PublicDNS = shell_exec("/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-hostname");
+			// self::$PublicDNS = shell_exec("/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-ipv4");
+			// self::$InstanceID = shell_exec("/usr/bin/curl -s http://169.254.169.254/latest/meta-data/instance-id");
+			// self::$InstanceType = shell_exec("/usr/bin/curl -s http://169.254.169.254/latest/meta-data/instance-type");
+			
+			$res = $client->request('GET', 'http://169.254.169.254/latest/meta-data/public-hostname');
+			self::$PublicDNS = $res->getBody();
+			
+			$res = $client->request('GET', 'http://169.254.169.254/latest/meta-data/public-ipv4');
+			self::$PublicIP = $res->getBody();
+			
+			$res = $client->request('GET', 'http://169.254.169.254/latest/meta-data/instance-id');
+			self::$InstanceID = $res->getBody();
+			
+			$res = $client->request('GET', 'http://169.254.169.254/latest/meta-data/instance-type');
+			self::$InstanceType = $res->getBody();
+		
 		}
 
 		public static function LoadInstanceDetails($Packed){

@@ -886,6 +886,10 @@ else {
 		return round($Number, 2);
 	}
 
+	function FormatEuroCurrency($amount){
+		return '$' . to2($amount, 2);
+	}
+
 	function isWeekday($time){
 		$date = date("w", $time);
 		
@@ -1279,6 +1283,24 @@ function SqlToFriendlyDate($sqltime){
 	$strTime = TimeToTimeDay(strtotime($sqltime));
 	$OrgDate = date('m/d/Y', $strTime);
 	return $OrgDate;
+}
+
+function quoteEncode($StringToEncode){
+	return str_replace(array(
+			'&',
+			'"',
+			"'",
+			'<',
+			'>',
+			'ï¿½' 
+	), array(
+			'&amp;',
+			'&quot;',
+			'&apos;',
+			'&lt;',
+			'&gt;',
+			'&apos;' 
+	), $StringToEncode);
 }
 
 ?>
