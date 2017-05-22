@@ -518,7 +518,7 @@ else {
 			if($TimeDiff < 50) $AsReadableDate = 'Just Now';
 			elseif($TimeDiff < 5000) {
 				$TimeDiff = $TimeDiff / 60; // now in minutes
-				if(floor($TimeDiff) != 1) $s = 's';
+				if(floor($TimeDiff) != 1) $s = 's'; else $s = '';
 				$AsReadableDate = floor($TimeDiff) . " minute$s ago";
 			}
 			else {
@@ -1291,15 +1291,13 @@ function quoteEncode($StringToEncode){
 			'"',
 			"'",
 			'<',
-			'>',
-			'ï¿½' 
+			'>'
 	), array(
 			'&amp;',
 			'&quot;',
 			'&apos;',
 			'&lt;',
-			'&gt;',
-			'&apos;' 
+			'&gt;'
 	), $StringToEncode);
 }
 
