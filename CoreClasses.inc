@@ -687,7 +687,7 @@ else {
 		public static function AddConnection($Env, $UserName, $Password, $HostURL, $ReadOnly, $DateVersioned){
 			if(!$ReadOnly) {
 				$mysqli_connection = new clsDatabaseConnection($UserName, $Password, $HostURL, false, $DateVersioned);
-				$mysqli_connection->query("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
+				$mysqli_connection->query(git status"SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
 				$this->arrConnections[$Env][0] = $mysqli_connection;
 			
 			}
