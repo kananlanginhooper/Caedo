@@ -686,10 +686,10 @@ else {
 
 		public static function AddConnection($Env, $UserName, $Password, $HostURL, $ReadOnly, $DateVersioned){
 			if(!$ReadOnly) {
-				$this->arrConnections[$Env][0] = new clsDatabaseConnection($UserName, $Password, $HostURL, false, $DateVersioned);
+				self::$arrConnections[$Env][0] = new clsDatabaseConnection($UserName, $Password, $HostURL, false, $DateVersioned);
 			}
 			else {
-				$this->arrConnections[$Env][0] = new clsDatabaseConnection($UserName, $Password, $HostURL, true, $DateVersioned);
+				self::$arrConnections[$Env][] = new clsDatabaseConnection($UserName, $Password, $HostURL, true, $DateVersioned);
 			}
 		}
 
