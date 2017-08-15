@@ -892,6 +892,7 @@ else {
 					$Error = 'Could not connect. Error #3382';
 				}
 				else {
+					DB::$mysqli_write->query("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
 					DB::$dbh = true;
 					Site::$HasDatabase = true;
 				}
