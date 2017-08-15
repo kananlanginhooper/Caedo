@@ -3,6 +3,7 @@ if(isset($DontLoadCAEDO) && $DontLoadCAEDO) {
 	// do nothing, the old framework is being loaded
 }
 else {
+
 	// I'm listing BasePage first in this file, because it will be the most often looked at class in here, you may have to step through parts of it to render you page, having it at the top makes it easy to find
 	class BasePage {
 		
@@ -247,7 +248,7 @@ else {
 				}
 			}
 		}
-		
+
 		// This is where the output comes from. After all other code has run, this will triger and output the page.
 		
 		// NOTICE:
@@ -484,7 +485,7 @@ else {
 		protected function BODY(){
 			print "<body>";
 		}
-		
+
 		//
 		//
 		//
@@ -575,7 +576,7 @@ else {
 			
 			return $ret;
 		}
-		
+
 		// -------------- Print Capture Tool
 		
 		protected function __PrintCapture_Start(){
@@ -588,7 +589,7 @@ else {
 			// return what we just captured
 			return $JustCaptured_OutputBuffer;
 		}
-		
+
 		// -------------- Print Capture Tool
 		
 		// --------------- Utility Functions
@@ -600,7 +601,7 @@ else {
 		// --------------- Utility Functions
 	
 	}
-	
+
 	//
 	//
 	//
@@ -685,10 +686,15 @@ else {
 
 		public static function AddConnection($Env, $UserName, $Password, $HostURL, $ReadOnly, $DateVersioned){
 			if(!$ReadOnly) {
-				self::$arrConnections[$Env][0] = new clsDatabaseConnection($UserName, $Password, $HostURL, false, $DateVersioned);
+				$mysqli_connection = new clsDatabaseConnection($UserName, $Password, $HostURL, false, $DateVersioned);
+				$mysqli_connection->query("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
+				$this->arrConnections[$Env][0] = $mysqli_connection;
+			
 			}
 			else {
-				self::$arrConnections[$Env][] = new clsDatabaseConnection($UserName, $Password, $HostURL, true, $DateVersioned);
+				$mysqli_connection = new clsDatabaseConnection($UserName, $Password, $HostURL, true, $DateVersioned);
+				$mysqli_connection->query("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
+				$this->arrConnections[$Env][0] = $mysqli_connection;
 			}
 		}
 
