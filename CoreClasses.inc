@@ -41,6 +41,7 @@ else {
 		
 		// Tidy Comment
 		protected $__TidyHTMLComment = '<!-- Framework will Insert Tidy Message Here - This tag will be replaced with the Tidy HTML messages and Stats on Memory usage and Run time - DO NOT EDIT THIS COMMENT -->';
+		protected $__PageHTML = '';
 		
 		// Other varables
 		private $__ViewData;
@@ -361,7 +362,7 @@ else {
 				$PageEND = $this->__PrintCapture_EndReturn();
 				
 				// collect the three sections
-				$PageHTML = $PageHEAD . $PageBODY . $PageEND;
+				$this->__PageHTML = $PageHEAD . $PageBODY . $PageEND;
 				
 				if(isset(Site::$TidyUp) && Site::$TidyUp) {
 					
@@ -377,45 +378,45 @@ else {
 								'new-blocklevel-tags' => 'audio, source' 
 						);
 						
-						$tidy->parseString($PageHTML, $tidy_config, 'utf8');
+						$tidy->parseString($this->__PageHTML, $tidy_config, 'utf8');
 						$tidy->cleanRepair();
 						
 						// Get the Tidy Message, then change the page source that is now nicely formatted, and add the Tidy Message
-						$PageHTMLAfterTidy = $tidy->value;
+						$this->__PageHTMLAfterTidy = $tidy->value;
 					}
 					else {
 						// tidy not enabled
-						$PageHTMLAfterTidy = $PageHTML;
+						$this->__PageHTMLAfterTidy = $this->__PageHTML;
 					}
 					
 					// check and see if there is a Replacement tag. If the tag is edited here or in a page class, it will be an issue.
-					if(strpos($PageHTMLAfterTidy, $this->__TidyHTMLComment)) {
+					if(strpos($this->__PageHTMLAfterTidy, $this->__TidyHTMLComment)) {
 						
-						$TidyMessage = $this->__ReturnHTMLErrorsForLocalhost($PageHTMLAfterTidy);
+						$TidyMessage = $this->__ReturnHTMLErrorsForLocalhost($this->__PageHTMLAfterTidy);
 						
-						$PageHTML = str_replace($this->__TidyHTMLComment, $TidyMessage, $PageHTMLAfterTidy);
+						$this->__PageHTML = str_replace($this->__TidyHTMLComment, $TidyMessage, $this->__PageHTMLAfterTidy);
 					}
 					else {
-						$PageHTML = $PageHTMLAfterTidy;
+						$this->__PageHTML = $this->__PageHTMLAfterTidy;
 					}
 					
 					if($this->__PageType == 'HTML5') {
 						// remove doctype if there is one
-						$PageHTML = preg_replace("/<!DOCTYPE((.|\n|\r)*?)\">/", "", $PageHTML);
+						$this->__PageHTML = preg_replace("/<!DOCTYPE((.|\n|\r)*?)\">/", "", $this->__PageHTML);
 						
 						// also remove HTML crap it can sometimes add
-						$PageHTML = preg_replace("/<html((.|\n|\r)*?)\">/", "", $PageHTML);
+						$this->__PageHTML = preg_replace("/<html((.|\n|\r)*?)\">/", "", $this->__PageHTML);
 						
 						// OUTPUT
 						$this->__DOCTYPE(); // DOCTYPE is removed or messed up by tidy
 					}
 					
 					echo "\n<html>\n";
-					echo $PageHTML; // This is the main print of all of the HTML code
+					echo $this->__PageHTML; // This is the main print of all of the HTML code
 				}
 				else {
 					// OUTPUT
-					echo $PageHTML; // This is the main print of all of the HTML code, if not using tidy
+					echo $this->__PageHTML; // This is the main print of all of the HTML code, if not using tidy
 				}
 			}
 			
