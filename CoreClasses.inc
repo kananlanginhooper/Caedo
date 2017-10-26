@@ -12,7 +12,7 @@ else {
 		protected $__CaedoRootFolder;
 		
 		// Setup
-		protected $__PageType = 'HTML5'; // Options HTML5, HTML, JSON, RAW -- These are validated in __destruct
+		protected $__PageType = 'HTML5'; // Options HTML5, HTML, JSON, RAW, Progressive -- These are validated in __destruct
 		public static $__PageMode = 'LIVE'; // Options LIVE, Test, Beta, etc -- These are not validated, these are for developer use when choosing DB connections, when sending emails, and calling outside APIs. Use as it best suits the team.
 		                                    
 		// Before Body Tag
@@ -280,6 +280,7 @@ else {
 				case 'HTML' :
 				case 'JSON' :
 				case 'RAW' :
+				case 'PROGRESSIVE' :
 					// OK
 					break;
 				default :
@@ -311,6 +312,18 @@ else {
 				
 				// OUTPUT
 				echo $PageData; // This is the main print of all of the HTML code, if not using tidy
+			
+			}
+			elseif($this->__PageType == 'PROGRESSIVE') {
+				// you use these for long loading pages. Here are some use cases:
+				// pages that will run over 60 seconds
+				
+				// Tidy is also not run, in any cases, and errors are not displayed, even in test environments
+				// the HTML of the page will not be available in distruct
+				
+				// Get MainView function
+				$MainView = $this->MainView;
+				$this->$MainView();
 			
 			}
 			else {
