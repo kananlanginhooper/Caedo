@@ -4,6 +4,7 @@ if(isset($DontLoadCAEDO) && $DontLoadCAEDO) {
 	// do nothing, the old framework is being loaded
 }
 else {
+
 	// Globals that we use: $RootFolder, $IsLocal
 	
 	// $RootFolder is the base execution directory, in linux or Windows
@@ -27,6 +28,7 @@ else {
 	
 	$GC_MaxMem = 270000000;
 	$GC_ClearTo = 250000000;
+
 	// declare(ticks = 100);
 	// register_tick_function('GarbageCollection');
 	
@@ -46,7 +48,7 @@ else {
 			// clsCachePages::CheckMemory($GC_ClearTo);
 		}
 	}
-	
+
 	// $CacheEnabled = Is_Kanan();
 	
 	function getRandAlpha($length = 8){
@@ -61,8 +63,8 @@ else {
 	/**
 	 * This function uses string reverse, string position and string length functions
 	 *
-	 * @param mixed $string        	
-	 * @param mixed $item        	
+	 * @param mixed $string
+	 * @param mixed $item
 	 *
 	 */
 	function lastIndexOf($string, $item){
@@ -78,7 +80,7 @@ else {
 	/**
 	 * This function is used to reutrn "ON" and "OFF"
 	 *
-	 * @param mixed $value        	
+	 * @param mixed $value
 	 * @return mixed
 	 *
 	 */
@@ -94,9 +96,9 @@ else {
 	/**
 	 * This function returns the <span></span> or Yes or No
 	 *
-	 * @param mixed $value        	
-	 * @param mixed $YesSpanCSS        	
-	 * @param mixed $NoSpanCSS        	
+	 * @param mixed $value
+	 * @param mixed $YesSpanCSS
+	 * @param mixed $NoSpanCSS
 	 * @return mixed
 	 *
 	 */
@@ -129,7 +131,7 @@ else {
 	/**
 	 * This function return True or False
 	 *
-	 * @param mixed $value        	
+	 * @param mixed $value
 	 * @return mixed
 	 *
 	 */
@@ -278,7 +280,7 @@ else {
 		global $IsLocal;
 		return $IsLocal;
 	}
-	
+
 	// http://stackoverflow.com/questions/327097/simple-encryption-in-php
 	function ecrypt($str){
 		return $str;
@@ -518,7 +520,8 @@ else {
 			if($TimeDiff < 50) $AsReadableDate = 'Just Now';
 			elseif($TimeDiff < 5000) {
 				$TimeDiff = $TimeDiff / 60; // now in minutes
-				if(floor($TimeDiff) != 1) $s = 's'; else $s = '';
+				if(floor($TimeDiff) != 1) $s = 's';
+				else $s = '';
 				$AsReadableDate = floor($TimeDiff) . " minute$s ago";
 			}
 			else {
@@ -1291,14 +1294,37 @@ function quoteEncode($StringToEncode){
 			'"',
 			"'",
 			'<',
-			'>'
+			'>' 
 	), array(
 			'&amp;',
 			'&quot;',
 			'&apos;',
 			'&lt;',
-			'&gt;'
+			'&gt;' 
 	), $StringToEncode);
 }
+
+//
+// from Vasiliy Makogon
+// http://php.net/manual/en/function.is-int.php
+function isInteger($val){
+	if(!is_scalar($val) || is_bool($val)) {
+		return false;
+	}
+	if(is_float($val + 0) && ($val + 0) > PHP_INT_MAX) {
+		return false;
+	}
+	return is_float($val) ? false : preg_match('~^((:?+|-)?[0-9]+)$~', $val);
+}
+
+function isFloat($val){
+	if(!is_scalar($val)) {
+		return false;
+	}
+	return is_float($val + 0);
+}
+//
+//
+//
 
 ?>
