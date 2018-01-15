@@ -912,7 +912,13 @@ else {
 
 		public function __construct(){
 			// DebugBreak();
-			self::$LoggingEnabled = (self::$SQLDebug_MemcacheStarted && time() < (int)cacheGet('SQLDebug') && (cacheGet('SQLDebug_Session') == 'All' || cacheGet('SQLDebug_Session') == session_id()));
+			// 
+			
+			// need to load in Memcache
+			
+			$clsMemcache = new clsMemcache(Site::$Env);
+			
+			self::$LoggingEnabled = (self::$SQLDebug_MemcacheStarted && (time() - 1500000000) < (int)cacheGet('SQLDebug') && (cacheGet('SQLDebug_Session') == 'All' || cacheGet('SQLDebug_Session') == session_id()));
 		}
 
 		public static function FindInstanceDetails(){
