@@ -255,13 +255,9 @@ else {
 		// xdebug_break();
 		$arrClassFileName = array();
 		
-		// all code folders are loaded just the same, if a file exists in local it will supersede the framework file, first file wins
+		// all folders are loaded just the same, if a file exists in local it will supersede the framework file, first file wins
 		
-		$CaedoRootFolder_noSlash = rtrim($CaedoRootFolder, "/");
-		
-		$arrClassFileName = autoload_recurse($CaedoRootFolder_noSlash, $ClassName, $arrClassFileName, 'caedo');
-		// $arrClassFileName = autoload_recurse($RootFolder . '__vendors', $ClassName, $arrClassFileName, 'composer');
-		$arrClassFileName = autoload_recurse($RootFolder . '__LOCAL_USER_CLASSES', $ClassName, $arrClassFileName, 'caedo');
+		$arrClassFileName = autoload_recurse($RootFolder, $ClassName, $arrClassFileName, 'caedo');
 		
 		foreach($arrClassFileName as $ClassFileName) {
 			if(file_exists($ClassFileName)) {
