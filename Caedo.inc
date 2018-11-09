@@ -1,5 +1,4 @@
 <?php
-
 if(isset($DontLoadCAEDO) && $DontLoadCAEDO) {
 	// do nothing, the old framework is being loaded
 }
@@ -7,7 +6,7 @@ else {
 	// Just an easy place to store all the debuging code.
 	// Allows for excel dumps of activites on a per request or global basis.
 	$__StartSecond = 0;
-
+	
 	function GetMicroTime(){
 		global $__StartSecond;
 		
@@ -21,7 +20,7 @@ else {
 		return $mtime;
 	}
 	$__TAGS = array();
-
+	
 	function convert($size){
 		$unit = array(
 				'b',
@@ -29,22 +28,22 @@ else {
 				'mb',
 				'gb',
 				'tb',
-				'pb' 
+				'pb'
 		);
 		return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
 	}
-
+	
 	function __Tag($Tag){
 		global $__TAGS, $IsLocal;
 		if($IsLocal === null || $IsLocal || @$__ShowErrors || (isset($_SESSION['ShowErrors']) && $_SESSION['ShowErrors'])) {
 			$__TAGS[] = array(
 					'Tag' => $Tag,
 					'Time' => GetMicroTime(),
-					'Mem' => convert(memory_get_usage(true)) 
+					'Mem' => convert(memory_get_usage(true))
 			);
 		}
 	}
-
+	
 	function __ReturnTags(){
 		global $__TAGS;
 		
@@ -69,17 +68,17 @@ else {
 	}
 	
 	__Tag('Start Framework');
-
+	
 	function xdebug_break_if_toggle_enabled(){
 		if(isset(Site::$xdebug_toggle) && Site::$xdebug_toggle) xdebug_break();
 	}
-
+	
 	function xdebug_break_toggle_Off(){
 		if(isset(Site::$xdebug_toggle)) {
 			Site::$xdebug_toggle = false;
 		}
 	}
-
+	
 	function xdebug_break_toggle_On(){
 		if(isset(Site::$xdebug_toggle)) {
 			Site::$xdebug_toggle = true;
@@ -100,7 +99,7 @@ else {
 	Site::$RootFolder = $RootFolder;
 	Site::$CaedoConfigFolder = $RootFolder . '__CAEDO_CONFIG/';
 	Site::$CaedoRootFolder = $CaedoRootFolder;
-
+	
 	function UncaughtExceptionHandler($exception){
 		xdebug_break();
 		xdebug_break();
@@ -162,7 +161,7 @@ else {
 		fwrite($fh, "include_once '$ClassFileName';\n");
 		fclose($fh);
 	}
-
+	
 	function autoload_SaveUseAsToStaticIncludes($Use, $As){
 		global $RootFolder;
 		$IncludeFileName = $RootFolder . "__STATIC_INCLUDES" . $_SERVER['SCRIPT_NAME'] . '.inc';
@@ -182,7 +181,7 @@ else {
 		fwrite($fh, "use $Use as $As;\n");
 		fclose($fh);
 	}
-
+	
 	function FileNameUsingNamingConvention($BasePath, $ClassName, $FileNamingConvention){
 		switch ($FileNamingConvention) {
 			case 'caedo' :
@@ -197,7 +196,7 @@ else {
 				break;
 		}
 	}
-
+	
 	function autoload_recurse($BaseFolder, $pClassName, $arrClassFileName, $FileNamingConvention){
 		$directories = glob($BaseFolder . '/*', GLOB_ONLYDIR);
 		foreach($directories as $dir) {
@@ -206,7 +205,6 @@ else {
 			
 			$arrClassFileName[$filename] = $filename;
 			$arrClassFileName = autoload_recurse($dir, $pClassName, $arrClassFileName, $FileNamingConvention);
-		
 		}
 		
 		$filename = FileNameUsingNamingConvention($BaseFolder, $pClassName, $FileNamingConvention);
@@ -214,9 +212,9 @@ else {
 		
 		return $arrClassFileName;
 	}
-
+	
 	function autoload($pClassName){
-		global $RootFolder, $CaedoRootFolder;
+		global $RootFolder, $CaedoRootFolder, $arrAutoLoadFolders;
 		if(false && clsMemcache::$HasMemcache && clsMemcache::$CacheEnabled) {
 			// use memcache to save a list of classes that should be included because they are often used with this code
 			$MemCachePageClass = 'PageClasses__' . $_SERVER['SCRIPT_NAME'];
@@ -257,7 +255,14 @@ else {
 		
 		// all folders are loaded just the same, if a file exists in local it will supersede the framework file, first file wins
 		
-		$arrClassFileName = autoload_recurse($RootFolder, $ClassName, $arrClassFileName, 'caedo');
+		if(isset($arrAutoLoadFolders)) {
+			foreach($arrAutoLoadFolders as $Folder) {
+				$arrClassFileName = autoload_recurse($RootFolder . $Folder, $ClassName, $arrClassFileName, 'caedo');
+			}
+		}
+		else {
+			$arrClassFileName = autoload_recurse($RootFolder, $ClassName, $arrClassFileName, 'caedo');
+		}
 		
 		foreach($arrClassFileName as $ClassFileName) {
 			if(file_exists($ClassFileName)) {
@@ -265,7 +270,7 @@ else {
 				// these two lines must be in this order, or if the include has dependencies, they will never auto load, and always be ondemand
 				include_once $ClassFileName; // actually include the file
 				autoload_SaveFileToStaticIncludes($ClassFileName); // add to the static include for next time
-				                                                   
+				
 				// namespaces can be needed in some cases?
 				if(false) {
 					// deal with namespaces
@@ -396,13 +401,13 @@ else {
 	// --------------------- Error and Debug - Move as high as you can
 	
 	if(!function_exists('session_status')) {
-
+		
 		function session_active(){
 			return defined('SID');
 		}
 	}
 	else {
-
+		
 		function session_active(){
 			return (session_status() === PHP_SESSION_ACTIVE);
 		}
@@ -426,7 +431,7 @@ else {
 		
 		error_log($str . $FunctionArgsAndValues);
 	}
-
+	
 	function LogPassThroughError(){
 		$arrDebug = debug_backtrace();
 		// DebugBreak();
@@ -443,7 +448,7 @@ else {
 		
 		error_log($str . $FunctionArgsAndValues);
 	}
-
+	
 	function __log_error($arrFunctionArgs, $File, $Line, $strFunctionArgs){
 		// DebugBreak();
 		if(function_exists('cacheGet')) {
@@ -464,7 +469,7 @@ else {
 			}
 			
 			$sql = "insert into sys_errordebug (edSessionID, edTime, edErrorMessage0, edErrorMessage1, edErrorMessage2, edErrorMessage3, edFile, edLine, edAllMessages)
-        VALUES ( '" . session_id() . "' ,'" . realtimesql('NE') . "' 
+        VALUES ( '" . session_id() . "' ,'" . realtimesql('NE') . "'
         ,'" . escape_string($edErrorMessage0) . "','" . escape_string($edErrorMessage1) . "','" . escape_string($edErrorMessage2) . "','" . escape_string($edErrorMessage3) . "'
         , '" . escape_string($File) . "', {$Line}, '" . escape_string($strFunctionArgs) . "')";
 			sql_query($sql);
@@ -513,14 +518,14 @@ else {
 			}
 		}
 	}
-
+	
 	function sql_query_or_die($SQL, $DieMessage){
 		xdebug_break();
 		xdebug_break();
 		xdebug_break();
 		throw new Exception("$DieMessage | SQL: $SQL");
 	}
-
+	
 	function sql_query($SQL, $unbuffered = false){
 		global $RootFolder;
 		
@@ -564,9 +569,9 @@ else {
 			
 			$res = $mysqli->query($SQL) or sql_query_or_die($SQL, $mysqli->error);
 			if(isset($_GET) && isset($_GET['Debug'])) LogPassThroughError($SQL); // log if ?Debug is set
-			                                                                     
+			
 			// }
-			                                                                     
+			
 			// check to see if logging is enabled.
 			if(Instance::$LoggingEnabled && !strpos($SQL, 'sys_sqldebug') && !strpos($SQL, 'sys_memcachedebug') && !strpos($SQL, 'sys_errordebug')) {
 				$End = microtime(true);
@@ -577,7 +582,7 @@ else {
 			
 			if(!$mysqli->error) {
 				return $res; // worked
-					             // return DB::$mysqli->use_result(); // worked
+				// return DB::$mysqli->use_result(); // worked
 			}
 			else {
 				// nope
@@ -587,7 +592,7 @@ else {
 			}
 		}
 	}
-
+	
 	function sql_query_datasets_only($SQL, $unbuffered = false){
 		global $RootFolder;
 		
@@ -633,9 +638,9 @@ else {
 			$res = $mysqli->query($SQL);
 			
 			if(isset($_GET) && isset($_GET['Debug'])) LogPassThroughError($SQL); // log if ?Debug is set
-			                                                                     
+			
 			// }
-			                                                                     
+			
 			// check to see if logging is enabled.
 			if(Instance::$LoggingEnabled && !strpos($SQL, 'sys_sqldebug') && !strpos($SQL, 'sys_memcachedebug') && !strpos($SQL, 'sys_errordebug')) {
 				$End = microtime(true);
@@ -646,7 +651,7 @@ else {
 			
 			if(!$mysqli->error) {
 				return $res; // worked
-					             // return DB::$mysqli->use_result(); // worked
+				// return DB::$mysqli->use_result(); // worked
 			}
 			else {
 				// nope
@@ -687,7 +692,7 @@ else {
 			return $arrToEscape;
 		}
 	}
-
+	
 	function escape_string($StringToEscape){
 		if(is_array($StringToEscape)) {
 			LogPassThroughError("real_escape_string passed an array");
@@ -703,7 +708,7 @@ else {
 			return real_escape_string($StringToEscape);
 		}
 	}
-
+	
 	function real_escape_string($StringToEscape){
 		return DB::$mysqli_read->real_escape_string($StringToEscape);
 	}
@@ -712,7 +717,7 @@ else {
 	function sql_fetch_array($res){
 		fetch_array($res);
 	}
-
+	
 	function fetch_array($res){
 		if(is_object($res)) {
 			return $res->fetch_array();
@@ -758,7 +763,7 @@ else {
 	function sql_num_rows($res){
 		return num_rows($res);
 	}
-
+	
 	function num_rows($res){
 		if(is_object($res)) {
 			return $res->num_rows;
@@ -773,7 +778,7 @@ else {
 	function sql_num_fields($res){
 		return num_fields($res);
 	}
-
+	
 	function num_fields($res){
 		if(is_object($res)) {
 			return $res->field_count;
@@ -788,7 +793,7 @@ else {
 	function sql_fetch_fields($res){
 		return fetch_fields($res);
 	}
-
+	
 	function fetch_fields($res){
 		if(is_object($res)) {
 			return $res->fetch_fields();
@@ -803,7 +808,7 @@ else {
 	function sql_affected_rows(){
 		return affected_rows();
 	}
-
+	
 	function affected_rows($res = null){
 		if($res) {
 			if(is_object($res)) {
@@ -823,7 +828,7 @@ else {
 	function sql_free_result($res){
 		return free_result($res);
 	}
-
+	
 	function free_result($res){
 		if(is_object($res)) {
 			return $res->free_result();
@@ -838,7 +843,7 @@ else {
 	function sql_insert_id(){
 		return insert_id();
 	}
-
+	
 	function insert_id(){
 		if(DB::$dbh) {
 			return DB::$mysqli_write->insert_id;
@@ -848,7 +853,7 @@ else {
 			return false;
 		}
 	}
-
+	
 	function sql_error(){
 		if(DB::$dbh) {
 			return DB::$mysqli_write->error;
@@ -937,9 +942,9 @@ else {
 		
 		// Everything is setup, time to start the session
 		if(!session_active()) session_start(); // session will already be active if we're running on localhost
-		                                       
+		
 		// not sure what this does // $_SESSION['SiteProfile'] = Site::$Profile;
-		                                       
+		
 		// activate logging ability for memcache
 		Instance::$SQLDebug_MemcacheStarted = (false);
 	}
