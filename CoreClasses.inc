@@ -698,30 +698,66 @@ else {
 	class clsDatabaseConnections {
 		private static $arrConnections = array();
 
-		public static function AddConnection($Env, $UserName, $Password, $HostURL, $ReadOnly, $DateVersioned){
+		public static function AddConnection($Env, $UserName, $Password, $HostURL, $DatabaseAlias, $ReadOnly, $DateVersioned){
 			if(!$ReadOnly) {
-				self::$arrConnections[$Env][0] = new clsDatabaseConnection($UserName, $Password, $HostURL, false, $DateVersioned);
+				if(!isset(self::$arrConnections[$Env]) && empty(self::$arrConnections[$Env])){
+					$DatabaseAlias = 'default';
+				}else if(isset(self::$arrConnections[$Env]) && count(self::$arrConnections[$Env]) == 1 && $DatabaseAlias == ''){
+					$DatabaseAlias = 'default';
+				}
+				self::$arrConnections[$Env][$DatabaseAlias] = new clsDatabaseConnection($UserName, $Password, $HostURL, false, $DateVersioned);					
+				// self::$arrConnections[$Env][0] = new clsDatabaseConnection($UserName, $Password, $HostURL, false, $DateVersioned);
 			}
 			else {
-				self::$arrConnections[$Env][] = new clsDatabaseConnection($UserName, $Password, $HostURL, true, $DateVersioned);
+				if(!isset(self::$arrConnections[$Env]) && empty(self::$arrConnections[$Env])){
+					$DatabaseAlias = 'default';
+				}
+				// if(!empty($DatabaseAlias)){
+					self::$arrConnections[$Env][$DatabaseAlias] = new clsDatabaseConnection($UserName, $Password, $HostURL, false, $DateVersioned);
+				// }else{					
+					// self::$arrConnections[$Env]['default'] = new clsDatabaseConnection($UserName, $Password, $HostURL, true, $DateVersioned);
+				// }
+				// self::$arrConnections[$Env][] = new clsDatabaseConnection($UserName, $Password, $HostURL, true, $DateVersioned);
 			}
 		}
 
-		public static function GetConnection($Env, $ReadOnly){
+		public static function GetConnection($Env, $DatabaseAlias='default', $ReadOnly){
 			if(!$ReadOnly) {
-				if(isset(self::$arrConnections[$Env][0])) {
-					return self::$arrConnections[$Env][0];
+				/* if(!empty($DatabaseAlias)){
+					if(isset(self::$arrConnections[$Env][$DatabaseAlias])){
+						return self::$arrConnections[$Env][$DatabaseAlias];
+					}else{
+						return false;
+					}
+					
+				}else{
+					if(isset(self::$arrConnections[$Env]['default'])){
+						return self::$arrConnections[$Env]['default'];
+					}else if(self::$arrConnections[$Env][0]){
+						return self::$arrConnections[$Env][0];
+					}else{
+						return false;
+					}
+				} */
+				if(isset(self::$arrConnections[$Env])) {
+					return self::$arrConnections[$Env];
 				}
 				else {
 					return false;
 				}
 			}
 			else {
-				$Readonlys = count(self::$arrConnections[$Env]) - 1;
+				if(isset(self::$arrConnections[$Env])) {
+					return self::$arrConnections[$Env];
+				}
+				else {
+					return false;
+				}
+				/* $Readonlys = count(self::$arrConnections[$Env]) - 1;
 				$cn = rand(1, $Readonlys);
 				if(isset(self::$arrConnections[$Env][$cn])) {
 					return self::$arrConnections[$Env][$cn];
-				}
+				} */
 			}
 		}
 
@@ -790,7 +826,7 @@ else {
 		public $Url, $Site, $Env, $IsLocal, $WriteDatabase, $HasReadReplica, $ReadDatabase, $AllowURLOverride, $URLOverridePassKey, $SessionManager, $SessionManagerPath, $TidyUp, $ShowErrors, $ShowStats, $CDNDataHost, $CDNBucket;
 		public $IsSecure, $Http_Host, $Http_Port, $PathToHttp, $PathToSsl;
 
-		public function __construct($Url, $Site, $Env, $IsLocal, $WriteDatabase, $HasReadReplica, $ReadDatabase, $AllowURLOverride, $URLOverridePassKey, $SessionManager, $SessionManagerPath, $TidyUp, $ShowErrors, $ShowStats, $CDNDataHost, $CDNBucket){
+		public function __construct($Url, $Site, $Env, $IsLocal, $WriteDatabase, $HasReadReplica, $ReadDatabase, $AllowURLOverride, $URLOverridePassKey, $SessionManager, $SessionManagerPath, $TidyUp, $ShowErrors, $ShowStats, $CDNDataHost='', $CDNBucket=''){
 			$this->Url = strtolower($Url);
 			$this->Site = $Site;
 			$this->Env = $Env;
