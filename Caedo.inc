@@ -28,7 +28,7 @@ else {
 				'mb',
 				'gb',
 				'tb',
-				'pb'
+				'pb' 
 		);
 		return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
 	}
@@ -39,7 +39,7 @@ else {
 			$__TAGS[] = array(
 					'Tag' => $Tag,
 					'Time' => GetMicroTime(),
-					'Mem' => convert(memory_get_usage(true))
+					'Mem' => convert(memory_get_usage(true)) 
 			);
 		}
 	}
@@ -270,7 +270,7 @@ else {
 				// these two lines must be in this order, or if the include has dependencies, they will never auto load, and always be ondemand
 				include_once $ClassFileName; // actually include the file
 				autoload_SaveFileToStaticIncludes($ClassFileName); // add to the static include for next time
-				
+				                                                   
 				// namespaces can be needed in some cases?
 				if(false) {
 					// deal with namespaces
@@ -382,15 +382,18 @@ else {
 	// this is not the right way to do this, need to move all functions such as APC_GET into the APC class and make them static
 	// $clsMemcache = new clsMemcache('n/a'); // we will need to load this again, down past config.site.inc
 	
-	// load common classes
-	$IncludeFileName = $RootFolder . "__STATIC_INCLUDES" . $_SERVER['SCRIPT_NAME'] . '.inc';
-	if(!file_exists($IncludeFileName)) {
-		@touch($IncludeFileName);
-		// put < ?php in the file
-		@file_put_contents($IncludeFileName, "<?php\n");
-	}
-	else {
-		include_once $IncludeFileName;
+	// only on non-local
+	if(!Site::$IsLocal) {
+		// load common classes
+		$IncludeFileName = $RootFolder . "__STATIC_INCLUDES" . $_SERVER['SCRIPT_NAME'] . '.inc';
+		if(!file_exists($IncludeFileName)) {
+			@touch($IncludeFileName);
+			// put < ?php in the file
+			@file_put_contents($IncludeFileName, "<?php\n");
+		}
+		else {
+			include_once $IncludeFileName;
+		}
 	}
 	
 	//
@@ -569,9 +572,9 @@ else {
 			
 			$res = $mysqli->query($SQL) or sql_query_or_die($SQL, $mysqli->error);
 			if(isset($_GET) && isset($_GET['Debug'])) LogPassThroughError($SQL); // log if ?Debug is set
-			
+			                                                                     
 			// }
-			
+			                                                                     
 			// check to see if logging is enabled.
 			if(Instance::$LoggingEnabled && !strpos($SQL, 'sys_sqldebug') && !strpos($SQL, 'sys_memcachedebug') && !strpos($SQL, 'sys_errordebug')) {
 				$End = microtime(true);
@@ -582,7 +585,7 @@ else {
 			
 			if(!$mysqli->error) {
 				return $res; // worked
-				// return DB::$mysqli->use_result(); // worked
+					             // return DB::$mysqli->use_result(); // worked
 			}
 			else {
 				// nope
@@ -638,9 +641,9 @@ else {
 			$res = $mysqli->query($SQL);
 			
 			if(isset($_GET) && isset($_GET['Debug'])) LogPassThroughError($SQL); // log if ?Debug is set
-			
+			                                                                     
 			// }
-			
+			                                                                     
 			// check to see if logging is enabled.
 			if(Instance::$LoggingEnabled && !strpos($SQL, 'sys_sqldebug') && !strpos($SQL, 'sys_memcachedebug') && !strpos($SQL, 'sys_errordebug')) {
 				$End = microtime(true);
@@ -651,7 +654,7 @@ else {
 			
 			if(!$mysqli->error) {
 				return $res; // worked
-				// return DB::$mysqli->use_result(); // worked
+					             // return DB::$mysqli->use_result(); // worked
 			}
 			else {
 				// nope
@@ -942,9 +945,9 @@ else {
 		
 		// Everything is setup, time to start the session
 		if(!session_active()) session_start(); // session will already be active if we're running on localhost
-		
+		                                       
 		// not sure what this does // $_SESSION['SiteProfile'] = Site::$Profile;
-		
+		                                       
 		// activate logging ability for memcache
 		Instance::$SQLDebug_MemcacheStarted = (false);
 	}
