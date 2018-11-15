@@ -1,10 +1,12 @@
 <?php
+
 if(isset($DontLoadCAEDO) && $DontLoadCAEDO) {
 	// do nothing, the old framework is being loaded
 }
 else {
 	// Just an easy place to store all the debuging code.
 	// Allows for excel dumps of activites on a per request or global basis.
+	
 	$__StartSecond = 0;
 	
 	function GetMicroTime(){
@@ -20,7 +22,7 @@ else {
 		return $mtime;
 	}
 	$__TAGS = array();
-	
+
 	function convert($size){
 		$unit = array(
 				'b',
@@ -32,7 +34,7 @@ else {
 		);
 		return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
 	}
-	
+
 	function __Tag($Tag){
 		global $__TAGS, $IsLocal;
 		if($IsLocal === null || $IsLocal || @$__ShowErrors || (isset($_SESSION['ShowErrors']) && $_SESSION['ShowErrors'])) {
@@ -43,7 +45,7 @@ else {
 			);
 		}
 	}
-	
+
 	function __ReturnTags(){
 		global $__TAGS;
 		
@@ -68,17 +70,17 @@ else {
 	}
 	
 	__Tag('Start Framework');
-	
+
 	function xdebug_break_if_toggle_enabled(){
 		if(isset(Site::$xdebug_toggle) && Site::$xdebug_toggle) xdebug_break();
 	}
-	
+
 	function xdebug_break_toggle_Off(){
 		if(isset(Site::$xdebug_toggle)) {
 			Site::$xdebug_toggle = false;
 		}
 	}
-	
+
 	function xdebug_break_toggle_On(){
 		if(isset(Site::$xdebug_toggle)) {
 			Site::$xdebug_toggle = true;
@@ -99,7 +101,7 @@ else {
 	Site::$RootFolder = $RootFolder;
 	Site::$CaedoConfigFolder = $RootFolder . '__CAEDO_CONFIG/';
 	Site::$CaedoRootFolder = $CaedoRootFolder;
-	
+
 	function UncaughtExceptionHandler($exception){
 		xdebug_break();
 		xdebug_break();
@@ -144,6 +146,7 @@ else {
 	// Setup Class AutoLoader
 	function autoload_SaveFileToStaticIncludes($ClassFileName){
 		global $RootFolder;
+		if(!Site::$IsLocal){
 		$IncludeFileName = $RootFolder . "__STATIC_INCLUDES" . $_SERVER['SCRIPT_NAME'] . '.inc';
 		
 		if(!file_exists(dirname($IncludeFileName))) {
@@ -160,10 +163,12 @@ else {
 		$Escaped_RootFolder = str_replace("\\", "\\\\", $RootFolder);
 		fwrite($fh, "include_once '$ClassFileName';\n");
 		fclose($fh);
+		}
 	}
-	
+
 	function autoload_SaveUseAsToStaticIncludes($Use, $As){
 		global $RootFolder;
+		if(!Site::$IsLocal){
 		$IncludeFileName = $RootFolder . "__STATIC_INCLUDES" . $_SERVER['SCRIPT_NAME'] . '.inc';
 		
 		if(!file_exists(dirname($IncludeFileName))) {
@@ -180,8 +185,9 @@ else {
 		$Escaped_RootFolder = str_replace("\\", "\\\\", $RootFolder);
 		fwrite($fh, "use $Use as $As;\n");
 		fclose($fh);
+		}
 	}
-	
+
 	function FileNameUsingNamingConvention($BasePath, $ClassName, $FileNamingConvention){
 		switch ($FileNamingConvention) {
 			case 'caedo' :
@@ -196,7 +202,7 @@ else {
 				break;
 		}
 	}
-	
+
 	function autoload_recurse($BaseFolder, $pClassName, $arrClassFileName, $FileNamingConvention){
 		$directories = glob($BaseFolder . '/*', GLOB_ONLYDIR);
 		foreach($directories as $dir) {
@@ -205,6 +211,7 @@ else {
 			
 			$arrClassFileName[$filename] = $filename;
 			$arrClassFileName = autoload_recurse($dir, $pClassName, $arrClassFileName, $FileNamingConvention);
+		
 		}
 		
 		$filename = FileNameUsingNamingConvention($BaseFolder, $pClassName, $FileNamingConvention);
@@ -212,7 +219,7 @@ else {
 		
 		return $arrClassFileName;
 	}
-	
+
 	function autoload($pClassName){
 		global $RootFolder, $CaedoRootFolder, $arrAutoLoadFolders;
 		if(false && clsMemcache::$HasMemcache && clsMemcache::$CacheEnabled) {
@@ -271,15 +278,7 @@ else {
 				include_once $ClassFileName; // actually include the file
 				autoload_SaveFileToStaticIncludes($ClassFileName); // add to the static include for next time
 				                                                   
-				// namespaces can be needed in some cases?
-				if(false) {
-					// deal with namespaces
-					if($pClassName != $ClassName) {
-						xdebug_break();
-						eval("use $pClassName as $ClassName;");
-						autoload_SaveUseAsToStaticIncludes($pClassName, $ClassName);
-					}
-				}
+				return true;
 			}
 		}
 	}
@@ -313,7 +312,6 @@ else {
 	
 	// this will return false if no match is found
 	$SiteConfig = clsSiteConfigs::GetSiteConfig();
-	
 	$siteFound = false;
 	
 	// need to add URL redirect Authentication
@@ -404,13 +402,13 @@ else {
 	// --------------------- Error and Debug - Move as high as you can
 	
 	if(!function_exists('session_status')) {
-		
+
 		function session_active(){
 			return defined('SID');
 		}
 	}
 	else {
-		
+
 		function session_active(){
 			return (session_status() === PHP_SESSION_ACTIVE);
 		}
@@ -434,7 +432,7 @@ else {
 		
 		error_log($str . $FunctionArgsAndValues);
 	}
-	
+
 	function LogPassThroughError(){
 		$arrDebug = debug_backtrace();
 		// DebugBreak();
@@ -451,7 +449,7 @@ else {
 		
 		error_log($str . $FunctionArgsAndValues);
 	}
-	
+
 	function __log_error($arrFunctionArgs, $File, $Line, $strFunctionArgs){
 		// DebugBreak();
 		if(function_exists('cacheGet')) {
@@ -472,7 +470,7 @@ else {
 			}
 			
 			$sql = "insert into sys_errordebug (edSessionID, edTime, edErrorMessage0, edErrorMessage1, edErrorMessage2, edErrorMessage3, edFile, edLine, edAllMessages)
-        VALUES ( '" . session_id() . "' ,'" . realtimesql('NE') . "'
+        VALUES ( '" . session_id() . "' ,'" . realtimesql('NE') . "' 
         ,'" . escape_string($edErrorMessage0) . "','" . escape_string($edErrorMessage1) . "','" . escape_string($edErrorMessage2) . "','" . escape_string($edErrorMessage3) . "'
         , '" . escape_string($File) . "', {$Line}, '" . escape_string($strFunctionArgs) . "')";
 			sql_query($sql);
@@ -500,7 +498,7 @@ else {
 	// ----------------------------- mysqli, new DB connection
 	
 	//
-	function sql_multi_query($SQL){
+	function sql_multi_query($SQL, $databaseAlias='default'){
 		if(!DB::$dbh) {
 			LogPassThroughError("No DB connection");
 			DebugBreak();
@@ -510,26 +508,29 @@ else {
 			DebugBreak();
 		}
 		else {
-			$res = DB::$mysqli_write->multi_query($SQL);
+			
+			// $res = DB::$mysqli_write->multi_query($SQL);
+			$res = $GLOBALS['databaseReadAlias_'.$databaseAlias]->multi_query($SQL);
 			if(isset($_GET) && isset($_GET['Debug'])) LogPassThroughError($SQL); // log if ?Debug is set
-			if(!DB::$mysqli_write->error) {
+			// if(!DB::$mysqli_write->error) {
+			if(!$GLOBALS['databaseReadAlias_'.$databaseAlias]->error) {
 				return $res;
 			}
 			else {
-				LogPassThroughError("SQL ERROR Query", DB::$mysqli_write->error, $SQL);
+				LogPassThroughError("SQL ERROR Query", $GLOBALS['databaseReadAlias_'.$databaseAlias]->error, $SQL);
 				DebugBreak();
 			}
 		}
 	}
-	
+
 	function sql_query_or_die($SQL, $DieMessage){
 		xdebug_break();
 		xdebug_break();
 		xdebug_break();
 		throw new Exception("$DieMessage | SQL: $SQL");
 	}
-	
-	function sql_query($SQL, $unbuffered = false){
+
+	function sql_query($SQL, $databaseAlias='default', $unbuffered = false){
 		global $RootFolder;
 		
 		// DebugBreak();
@@ -562,13 +563,23 @@ else {
 			// }
 			// }else{
 			
-			// check to see if this is a select query:
-			if(strtoupper(substr($SQL, 0, 6)) == 'SELECT') { // will fail on select into
-				$mysqli = DB::$mysqli_read;
+			// isset($GLOBALS['databaseWriteAlias_'.$databaseAlias]) && 
+			if(strtoupper(substr($SQL, 0, 6)) == 'SELECT'){
+				$mysqli = $GLOBALS['databaseWriteAlias_'.$databaseAlias];
+				// $mysqli = DB::$mysqli_read;
 			}
 			else {
-				$mysqli = DB::$mysqli_write;
+				// $mysqli = DB::$mysqli_write;
+				if(isset($GLOBALS['databaseReadAlias_'.$databaseAlias])){					
+					$mysqli = $GLOBALS['databaseReadAlias_'.$databaseAlias];
+				}else{
+					$mysqli = $GLOBALS['databaseReadAlias_default'];
+				}
 			}
+			/* else if(strtoupper(substr($SQL, 0, 6)) == 'SELECT') { // will fail on select into
+				// check to see if this is a select query:
+				$mysqli = DB::$mysqli_read;
+			} */
 			
 			$res = $mysqli->query($SQL) or sql_query_or_die($SQL, $mysqli->error);
 			if(isset($_GET) && isset($_GET['Debug'])) LogPassThroughError($SQL); // log if ?Debug is set
@@ -595,8 +606,8 @@ else {
 			}
 		}
 	}
-	
-	function sql_query_datasets_only($SQL, $unbuffered = false){
+
+	function sql_query_datasets_only($SQL, $databaseAlias='default', $unbuffered = false){
 		global $RootFolder;
 		
 		// file_put_contents($RootFolder.'SQL.sql', $SQL.";\n", FILE_APPEND);
@@ -630,11 +641,22 @@ else {
 			// }else{
 			
 			// check to see if this is a select query:
-			if(strtoupper(substr($SQL, 0, 6)) == 'SELECT') { // will fail on select into
+			/* if(strtoupper(substr($SQL, 0, 6)) == 'SELECT') { // will fail on select into
 				$mysqli = DB::$mysqli_read;
 			}
 			else {
 				$mysqli = DB::$mysqli_write;
+			} */
+			
+			if(strtoupper(substr($SQL, 0, 6)) == 'SELECT'){
+				$mysqli = $GLOBALS['databaseWriteAlias_'.$databaseAlias];
+			}
+			else {
+				if(isset($GLOBALS['databaseReadAlias_'.$databaseAlias])){					
+					$mysqli = $GLOBALS['databaseReadAlias_'.$databaseAlias];
+				}else{
+					$mysqli = $GLOBALS['databaseReadAlias_default'];
+				}
 			}
 			
 			// DebugBreak();
@@ -695,7 +717,7 @@ else {
 			return $arrToEscape;
 		}
 	}
-	
+
 	function escape_string($StringToEscape){
 		if(is_array($StringToEscape)) {
 			LogPassThroughError("real_escape_string passed an array");
@@ -711,16 +733,17 @@ else {
 			return real_escape_string($StringToEscape);
 		}
 	}
-	
-	function real_escape_string($StringToEscape){
-		return DB::$mysqli_read->real_escape_string($StringToEscape);
+
+	function real_escape_string($StringToEscape, $databaseAlias='default'){
+		// return DB::$mysqli_read->real_escape_string($StringToEscape);
+		return $GLOBALS['databaseWriteAlias_'.$databaseAlias]->real_escape_string($StringToEscape);
 	}
 	
 	// mysql_ fetch_array
 	function sql_fetch_array($res){
 		fetch_array($res);
 	}
-	
+
 	function fetch_array($res){
 		if(is_object($res)) {
 			return $res->fetch_array();
@@ -766,7 +789,7 @@ else {
 	function sql_num_rows($res){
 		return num_rows($res);
 	}
-	
+
 	function num_rows($res){
 		if(is_object($res)) {
 			return $res->num_rows;
@@ -781,7 +804,7 @@ else {
 	function sql_num_fields($res){
 		return num_fields($res);
 	}
-	
+
 	function num_fields($res){
 		if(is_object($res)) {
 			return $res->field_count;
@@ -796,7 +819,7 @@ else {
 	function sql_fetch_fields($res){
 		return fetch_fields($res);
 	}
-	
+
 	function fetch_fields($res){
 		if(is_object($res)) {
 			return $res->fetch_fields();
@@ -811,8 +834,8 @@ else {
 	function sql_affected_rows(){
 		return affected_rows();
 	}
-	
-	function affected_rows($res = null){
+
+	function affected_rows($databaseAlias='default', $res = null){
 		if($res) {
 			if(is_object($res)) {
 				return $res->affected_rows();
@@ -823,7 +846,13 @@ else {
 			}
 		}
 		else {
-			return mysqli_affected_rows(DB::$mysqli_write);
+			// return mysqli_affected_rows(DB::$mysqli_write);
+			if(isset($GLOBALS['databaseReadAlias_'.$databaseAlias])){					
+				$mysqli = $GLOBALS['databaseReadAlias_'.$databaseAlias];
+			}else{
+				$mysqli = $GLOBALS['databaseReadAlias_default'];
+			}
+			return mysqli_affected_rows($mysqli);
 		}
 	}
 	
@@ -831,7 +860,7 @@ else {
 	function sql_free_result($res){
 		return free_result($res);
 	}
-	
+
 	function free_result($res){
 		if(is_object($res)) {
 			return $res->free_result();
@@ -846,36 +875,47 @@ else {
 	function sql_insert_id(){
 		return insert_id();
 	}
-	
-	function insert_id(){
+
+	function insert_id($databaseAlias='default'){
 		if(DB::$dbh) {
-			return DB::$mysqli_write->insert_id;
+			// return DB::$mysqli_write->insert_id;
+			if(isset($GLOBALS['databaseReadAlias_'.$databaseAlias])){					
+				$mysqli = $GLOBALS['databaseReadAlias_'.$databaseAlias];
+			}else{
+				$mysqli = $GLOBALS['databaseReadAlias_default'];
+			}
+			return $mysqli->insert_id;
 		}
 		else {
 			LogPassThroughError("SQL ERROR affected_rows");
 			return false;
 		}
 	}
-	
-	function sql_error(){
+
+	function sql_error($databaseAlias='default'){
 		if(DB::$dbh) {
-			return DB::$mysqli_write->error;
+			// return DB::$mysqli_write->error;
+			if(isset($GLOBALS['databaseReadAlias_'.$databaseAlias])){					
+				$mysqli = $GLOBALS['databaseReadAlias_'.$databaseAlias];
+			}else{
+				$mysqli = $GLOBALS['databaseReadAlias_default'];
+			}
+			return $mysqli->error;
 		}
 		else {
 			LogPassThroughError("SQL ERROR sql_error");
 			return false;
 		}
 	}
-	
+		
 	// ----------------------------- mysqli, new DB connection
-	
+		
 	// save for later, Server Identity, eg
 	DB::$mysqli_read = DB::$mysqli_write = DB::$dbh = false;
 	Site::$HasDatabase = false;
 	
 	try {
 		if(Site::$ShouldHaveDatabase) {
-			
 			// Setup Write Connection
 			if(!clsDatabaseConnections::GetConnection(Site::$Env, false)) xdebug_break();
 			DB::$connectionDetails_read = DB::$connectionDetails_write = clsDatabaseConnections::GetConnection(Site::$Env, false);
@@ -886,20 +926,40 @@ else {
 				LogPassThroughError("COULD NOT FIND CONNECTION", Site::$Env);
 			}
 			else {
-				DB::$mysqli_write = @new mysqli(DB::$connectionDetails_write->HostURL, DB::$connectionDetails_write->UserName, DB::$connectionDetails_write->Password, Site::$WriteDatabase);
-				if(!DB::$mysqli_write || (DB::$mysqli_write && DB::$mysqli_write->connect_error)) {
-					xdebug_break();
-					// die('Connect Error: ' . DB::$mysqli->connect_error);
-					// can't use this: DB::$mysqli->connect_error; DB::$mysqli is not defined
-					LogPassThroughError("SQL CONNECTION ERROR", DB::$connectionDetails_write->HostURL, DB::$connectionDetails_write->UserName, DB::$connectionDetails_write->Password, Site::$WriteDatabase);
-					DB::$dbh = false;
-					$Error = 'Could not connect. Error #3382';
+				$connectionWriteDetails = DB::$connectionDetails_write;
+				foreach($connectionWriteDetails as $databaseAlias => $databaseDetails){
+					$GLOBALS['databaseWriteAlias_'.$databaseAlias] = @new mysqli($databaseDetails->HostURL, $databaseDetails->UserName, $databaseDetails->Password, Site::$WriteDatabase[$databaseAlias]);
+					if(!$GLOBALS['databaseWriteAlias_'.$databaseAlias] || ($GLOBALS['databaseWriteAlias_'.$databaseAlias] && $GLOBALS['databaseWriteAlias_'.$databaseAlias]->connect_error)) {
+						xdebug_break();
+						
+						// can't use this: DB::$mysqli->connect_error; DB::$mysqli is not defined
+						LogPassThroughError("SQL CONNECTION ERROR", $GLOBALS['databaseWriteAlias_'.$databaseAlias]->HostURL, ${'databaseWriteAlias_'.$databaseAlias}->UserName, $GLOBALS['databaseWriteAlias_'.$databaseAlias]->Password, Site::$WriteDatabase[$databaseAlias]);
+						DB::$dbh = false;
+						$Error = 'Could not connect. Error #3382';
+					}
+					else {
+						$GLOBALS['databaseWriteAlias_'.$databaseAlias]->query("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
+						DB::$dbh = true;
+						Site::$HasDatabase = true;
+					}
 				}
-				else {
-					DB::$mysqli_write->query("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
-					DB::$dbh = true;
-					Site::$HasDatabase = true;
-				}
+				/* if(count(DB::$connectionDetails_write) > 1){
+				 }else{					
+					DB::$mysqli_write = @new mysqli(DB::$connectionDetails_write->HostURL, DB::$connectionDetails_write->UserName, DB::$connectionDetails_write->Password, Site::$WriteDatabase[$DatabaseAlias]);
+					if(!DB::$mysqli_write || (DB::$mysqli_write && DB::$mysqli_write->connect_error)) {
+						xdebug_break();
+						// die('Connect Error: ' . DB::$mysqli->connect_error);
+						// can't use this: DB::$mysqli->connect_error; DB::$mysqli is not defined
+						LogPassThroughError("SQL CONNECTION ERROR", DB::$connectionDetails_write->HostURL, DB::$connectionDetails_write->UserName, DB::$connectionDetails_write->Password, Site::$WriteDatabase[$DatabaseAlias]);
+						DB::$dbh = false;
+						$Error = 'Could not connect. Error #3382';
+					}
+					else {
+						DB::$mysqli_write->query("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
+						DB::$dbh = true;
+						Site::$HasDatabase = true;
+					}
+				} */
 			}
 			
 			$UseReadOnly = (Site::$ReadDatabase);
@@ -907,22 +967,40 @@ else {
 				// Setup Write Connection
 				DB::$connectionDetails_read = clsDatabaseConnections::GetConnection(Site::$Env, true);
 				if(!DB::$connectionDetails_read) {
-					DB::$mysqli_read = DB::$mysqli_write;
+					$GLOBALS['databaseReadAlias_default'] = $GLOBALS['databaseWriteAlias_default'];
+					// DB::$mysqli_read = DB::$mysqli_write;
 					xdebug_break();
 					$Error = 'Could not connect. Error #3381';
 					LogPassThroughError("COULD NOT FIND CONNECTION", Site::$Env);
 				}
 				else {
-					DB::$mysqli_read = @new mysqli(DB::$connectionDetails_read->HostURL, DB::$connectionDetails_read->UserName, DB::$connectionDetails_read->Password, Site::$ReadDatabase);
+					$connectionReadDetails = DB::$connectionDetails_read;
+					foreach($connectionReadDetails as $databaseAlias => $databaseDetails){
+						$GLOBALS['databaseReadAlias_'.$databaseAlias] = @new mysqli($databaseDetails->HostURL, $databaseDetails->UserName, $databaseDetails->Password, Site::$ReadDatabase[$databaseAlias]);
+						if(!$GLOBALS['databaseReadAlias_'.$databaseAlias] || ($GLOBALS['databaseReadAlias_'.$databaseAlias] && $GLOBALS['databaseReadAlias_'.$databaseAlias]->connect_error)) {
+							LogPassThroughError("SQL CONNECTION ERROR", $GLOBALS['databaseReadAlias_'.$databaseAlias]->HostURL, $GLOBALS['databaseReadAlias_'.$databaseAlias]->UserName, $GLOBALS['databaseReadAlias_'.$databaseAlias]->Password, Site::$ReadDatabase[$databaseAlias]);
+							$GLOBALS['databaseReadAlias_'.$databaseAlias] = $GLOBALS['databaseWriteAlias_'.$databaseAlias];
+							// DB::$mysqli_read = DB::$mysqli_write;
+							DebugBreak();
+						}	
+					}
+					/* DB::$mysqli_read = @new mysqli(DB::$connectionDetails_read->HostURL, DB::$connectionDetails_read->UserName, DB::$connectionDetails_read->Password, Site::$ReadDatabase);
 					if(!DB::$mysqli_read || (DB::$mysqli_read && DB::$mysqli_read->connect_error)) {
 						LogPassThroughError("SQL CONNECTION ERROR", DB::$connectionDetails_read->HostURL, DB::$connectionDetails_read->UserName, DB::$connectionDetails_read->Password, Site::$ReadDatabase);
 						DB::$mysqli_read = DB::$mysqli_write;
 						DebugBreak();
-					}
+					} */
 				}
 			}
 			else {
-				DB::$mysqli_read = DB::$mysqli_write;
+				DB::$connectionDetails_read = clsDatabaseConnections::GetConnection(Site::$Env, true);
+				$connectionReadDetails = DB::$connectionDetails_read;
+				foreach($connectionReadDetails as $databaseAlias => $databaseDetails){
+					$GLOBALS['databaseReadAlias_'.$databaseAlias] = $GLOBALS['databaseWriteAlias_'.$databaseAlias];
+				}
+				
+				// $GLOBALS['databaseReadAlias_default'] = $GLOBALS['databaseWriteAlias_default'];
+				// DB::$mysqli_read = DB::$mysqli_write;
 			}
 		}
 		
@@ -934,6 +1012,7 @@ else {
 		Site::$HasDatabase = false;
 		$Error = 'Could not connect. Error #3383';
 	}
+	
 	// }
 	// DBConnect();
 	

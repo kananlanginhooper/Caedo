@@ -3,7 +3,7 @@ if(isset($DontLoadCAEDO) && $DontLoadCAEDO) {
 	// do nothing, the old framework is being loaded
 }
 else {
-
+	
 	// I'm listing BasePage first in this file, because it will be the most often looked at class in here, you may have to step through parts of it to render you page, having it at the top makes it easy to find
 	class BasePage {
 		
@@ -49,9 +49,8 @@ else {
 		private $__OutputBuffer;
 		private $__OB_started = false;
 		private $__ConstructorCalled = false;
-
+		
 		public function __construct(){
-			
 			__Tag('Starting page class ' . get_class($this));
 			//
 			
@@ -66,14 +65,14 @@ else {
 			$this->__RootFolder = Site::$RootFolder;
 			$this->__CaedoRootFolder = Site::$CaedoRootFolder;
 		}
-
+		
 		protected function __Verify_ConstructorCalled(){
 			// check to make sure constuctor was called
 			if(!$this->__ConstructorCalled) {
 				die("The BasePage constructor was not called");
 			}
 		}
-
+		
 		protected function __Verify_Classname_Matches_Filename(){
 			$StartingPageFileName = $_SERVER['PHP_SELF'];
 			$StartingPageFileName = substr($StartingPageFileName, 0, strlen($StartingPageFileName) - 4); // to remove the .php
@@ -88,14 +87,14 @@ else {
 				die("Classname doesn't match file name");
 			}
 		}
-
+		
 		protected function __AddGeneralFunctionSets(){
 			global $RootFolder;
 			
 			// for now I moved this to global
 			// require_once $RootFolder . '__local/data_set_definitions.inc';
 		}
-
+		
 		private function __CSS(){
 			if(isset($this->__arrCSS_Early) && is_array($this->__arrCSS_Early)) {
 				foreach($this->__arrCSS_Early as $CSSLine) {
@@ -103,11 +102,11 @@ else {
 				}
 			}
 		}
-
+		
 		private function __Process_CSS(){
 			// for now, I'm not building out CSS processing. It'll happen, but more worried about JS at this point
 		}
-
+		
 		private function AddToArrayNice(&$arr, $Value, $Position = null){
 			// we're dealing with optional priorities, Higher priorities are better than lower ones
 			// duplicate prioritys are not allowed
@@ -135,9 +134,8 @@ else {
 				$Position = min($Keys) - 1;
 				$arr[$Position] = $Value;
 			}
-		
 		}
-
+		
 		protected function __JavaScript($SourceOrLink, $IsSource = false, $IsEarly = false, $Priority = null){
 			// $SourceOrLink = trim($SourceOrLink);
 			
@@ -145,7 +143,6 @@ else {
 			
 			// ?? Do we need to check for this??
 			// if($this->__HasJavaScript_Early_Been_Processed) die('Error: JavaScript Early Has Already Been Processed');
-			
 			if($IsEarly && $IsSource) {
 				$this->AddToArrayNice($this->__arrJavaScript_Early_Source, $SourceOrLink, $Priority);
 			}
@@ -158,12 +155,10 @@ else {
 			elseif(!$IsEarly && !$IsSource) {
 				$this->AddToArrayNice($this->__arrJavaScript_Late_files, $SourceOrLink, $Priority);
 			}
-		
 		}
-
+		
 		private function __Process_EarlyJavaScript(){
 			// the point of this function is to turn the JS arrays into exportable lines of html
-			
 			$this->__HasJavaScript_Early_Been_Processed = true;
 			// to be backwards compatible
 			
@@ -196,7 +191,7 @@ else {
 				}
 			}
 		}
-
+		
 		private function __EarlyJavaScript(){
 			if(count($this->__arrJavaScript_Early_Ready_For_Output)) {
 				// ksort($this->__arrJavaScript_Early_Ready_For_Output); // sorting not needed
@@ -205,10 +200,9 @@ else {
 				}
 			}
 		}
-
+		
 		private function __Process_LateJavaScript(){
 			// the point of this function is to turn the JS arrays into exportable lines of html
-			
 			$this->__HasJavaScript_Late_Been_Processed = true;
 			// to be backwards compatible
 			if(count($this->__arrJavaScript_Late)) {
@@ -240,7 +234,7 @@ else {
 				$this->__arrJavaScript_Late_Ready_For_Output[] = $str;
 			}
 		}
-
+		
 		private function __LateJavaScript(){
 			if(count($this->__arrJavaScript_Late_Ready_For_Output)) {
 				// ksort($this->__arrJavaScript_Late_Ready_For_Output); // sorting not needed
@@ -249,14 +243,13 @@ else {
 				}
 			}
 		}
-
+		
 		// This is where the output comes from. After all other code has run, this will triger and output the page.
 		
 		// NOTICE:
 		// if you call end();, this will not output anything.
 		// if this page shows blank for any other reason you can manually call this destructor without any ill effect
 		// if you override the destruct method in the child class, call this distruct after all the child code is run
-		
 		public function __destruct(){
 			global $IsLocal;
 			
@@ -312,7 +305,6 @@ else {
 				
 				// OUTPUT
 				echo $PageData; // This is the main print of all of the HTML code, if not using tidy
-			
 			}
 			elseif($this->__PageType == 'PROGRESSIVE') {
 				// you use these for long loading pages. Here are some use cases:
@@ -324,7 +316,6 @@ else {
 				// Get MainView function
 				$MainView = $this->MainView;
 				$this->$MainView();
-			
 			}
 			else {
 				
@@ -446,23 +437,21 @@ else {
 			}
 			
 			__Tag('Ending page class ' . get_class($this));
-		
 		}
-
+		
 		protected function __DOCTYPE(){
 			print "<!DOCTYPE html>\n";
 		}
-
+		
 		protected function __HTML(){
 			print "<html>\n";
 		}
-
+		
 		protected function __HEAD_close(){
 			print " </head>\n";
 		}
-
+		
 		protected function __HEAD_open(){
-			
 			print " <head>\n";
 			print "  <title>{$this->__PageTitle}</title>\n";
 			
@@ -471,9 +460,8 @@ else {
 					print '  ' . $HeadLine . "\n";
 				}
 			}
-		
 		}
-
+		
 		protected function HEAD(){
 			print '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
 		}
@@ -481,33 +469,29 @@ else {
 		//
 		//
 		//
-		
 		private $MainView = 'BODY';
-
+		
 		protected function __SelectAlternateView($AlternateView){
 			// use this function to call a function other than BODY() for the main display
 			$this->MainView = "BODY__{$AlternateView}";
 		}
-		
 		protected $__arrViewData = array();
-
+		
 		protected function __SetViewData($ViewLocalVaribleName, $Data){
 			// use this function to set data that will be available to the view as a local varible
 			$this->__arrViewData[$ViewLocalVaribleName] = $Data;
 		}
-
+		
 		protected function BODY(){
 			print "<body>";
 		}
-
-		//
-		//
-		//
 		
+		//
+		//
+		//
 		protected function FOOTER(){
-		
 		}
-
+		
 		protected function __BODY(){
 			print " <body>\n";
 			if(isset($this->__arrBody) && is_array($this->__arrBody)) {
@@ -521,19 +505,17 @@ else {
 					print '  ' . $BodyLine . "\n";
 				}
 			}
-		
 		}
-
+		
 		protected function __Closing_BODY_HTML(){
 			print " </body>\n";
 			print '</html>';
 		}
-
+		
 		private function __ReturnHTMLErrorsForLocalhost($html){
 			// put this in a div, there should only ever be one
 			// display: block !important; is so you can't hide this using css.
 			// If you are reading this and need to hide this message, you need to change Site::$ShowErrors, this is usually
-			
 			$ret = "";
 			
 			$ShowStats = (isset(Site::$ShowStats) && Site::$ShowStats);
@@ -590,20 +572,19 @@ else {
 			
 			return $ret;
 		}
-
-		// -------------- Print Capture Tool
 		
+		// -------------- Print Capture Tool
 		protected function __PrintCapture_Start(){
 			ob_start();
 		}
-
+		
 		protected function __PrintCapture_EndReturn(){
 			$JustCaptured_OutputBuffer = ob_get_clean();
 			
 			// return what we just captured
 			return $JustCaptured_OutputBuffer;
 		}
-
+		
 		// -------------- Print Capture Tool
 		
 		// --------------- Utility Functions
@@ -613,9 +594,8 @@ else {
 		}
 		
 		// --------------- Utility Functions
-	
 	}
-
+	
 	//
 	//
 	//
@@ -637,19 +617,17 @@ else {
 		
 		// from SiteConfig
 		static $IsLocal, $IsSecure, $Http_Host, $Http_Port, $PathToHttp, $PathToSsl;
-		
 		static $Url;
 		static $Site;
 		static $Env;
 		static $Server;
 		static $EnvServer;
-		
 		static $Profile;
 		
 		// URL (Site) overriding
 		static $AllowURLOverride, $URLOverridePassKey;
 		
-		// session
+		// session	
 		static $SessionManager, $SessionManagerPath;
 		
 		// Caedo flags
@@ -660,7 +638,7 @@ else {
 		
 		// CDN
 		static $CDNDataHost, $CDNBucket;
-
+		
 		static function setSite(clsSiteConfig $clsSiteConfig){
 			
 			// save the class, don't really need it, but we'll save it anyway for now
@@ -674,7 +652,9 @@ else {
 			Site::$EnvServer = $clsSiteConfig->Env . '_' . $clsSiteConfig->Url;
 			
 			Site::$IsLocal = $clsSiteConfig->IsLocal;
-			Site::$WriteDatabase = $clsSiteConfig->WriteDatabase;
+			Site::$WriteDatabase = array(
+					'default' => $clsSiteConfig->WriteDatabase 
+			);
 			Site::$HasReadReplica = $clsSiteConfig->HasReadReplica;
 			Site::$ReadDatabase = $clsSiteConfig->ReadDatabase;
 			Site::$AllowURLOverride = $clsSiteConfig->AllowURLOverride;
@@ -691,74 +671,111 @@ else {
 			Site::$PathToSsl = $clsSiteConfig->PathToSsl;
 			Site::$CDNDataHost = $clsSiteConfig->CDNDataHost;
 			Site::$CDNBucket = $clsSiteConfig->CDNBucket;
-		
 		}
 	}
-
+	
 	class clsDatabaseConnections {
 		private static $arrConnections = array();
-
-		public static function AddConnection($Env, $UserName, $Password, $HostURL, $ReadOnly, $DateVersioned){
+		
+		public static function AddConnection($Env, $UserName, $Password, $HostURL, $DatabaseAlias, $ReadOnly){
 			if(!$ReadOnly) {
-				self::$arrConnections[$Env][0] = new clsDatabaseConnection($UserName, $Password, $HostURL, false, $DateVersioned);
+				if(!isset(self::$arrConnections[$Env]) && empty(self::$arrConnections[$Env])) {
+					$DatabaseAlias = 'default';
+				}
+				else if(isset(self::$arrConnections[$Env]) && count(self::$arrConnections[$Env]) == 1 && $DatabaseAlias == '') {
+					$DatabaseAlias = 'default';
+				}
+				self::$arrConnections[$Env][$DatabaseAlias] = new clsDatabaseConnection($UserName, $Password, $HostURL, false);
+				// self::$arrConnections[$Env][0] = new clsDatabaseConnection($UserName, $Password, $HostURL, false, $DateVersioned);
 			}
 			else {
-				self::$arrConnections[$Env][] = new clsDatabaseConnection($UserName, $Password, $HostURL, true, $DateVersioned);
+				if(!isset(self::$arrConnections[$Env]) && empty(self::$arrConnections[$Env])) {
+					$DatabaseAlias = 'default';
+				}
+				// if(!empty($DatabaseAlias)){
+				self::$arrConnections[$Env][$DatabaseAlias] = new clsDatabaseConnection($UserName, $Password, $HostURL, false);
+				// }else{
+				// self::$arrConnections[$Env]['default'] = new clsDatabaseConnection($UserName, $Password, $HostURL, true, $DateVersioned);
+				// }
+				// self::$arrConnections[$Env][] = new clsDatabaseConnection($UserName, $Password, $HostURL, true, $DateVersioned);
 			}
 		}
-
-		public static function GetConnection($Env, $ReadOnly){
+		
+		public static function GetConnection($Env, $DatabaseAlias = 'default', $ReadOnly = false){
 			if(!$ReadOnly) {
-				if(isset(self::$arrConnections[$Env][0])) {
-					return self::$arrConnections[$Env][0];
+				/*
+				 * if(!empty($DatabaseAlias)){
+				 * if(isset(self::$arrConnections[$Env][$DatabaseAlias])){
+				 * return self::$arrConnections[$Env][$DatabaseAlias];
+				 * }else{
+				 * return false;
+				 * }
+				 *
+				 * }else{
+				 * if(isset(self::$arrConnections[$Env]['default'])){
+				 * return self::$arrConnections[$Env]['default'];
+				 * }else if(self::$arrConnections[$Env][0]){
+				 * return self::$arrConnections[$Env][0];
+				 * }else{
+				 * return false;
+				 * }
+				 * }
+				 */
+				if(isset(self::$arrConnections[$Env])) {
+					return self::$arrConnections[$Env];
 				}
 				else {
 					return false;
 				}
 			}
 			else {
-				$Readonlys = count(self::$arrConnections[$Env]) - 1;
-				$cn = rand(1, $Readonlys);
-				if(isset(self::$arrConnections[$Env][$cn])) {
-					return self::$arrConnections[$Env][$cn];
+				if(isset(self::$arrConnections[$Env])) {
+					return self::$arrConnections[$Env];
 				}
+				else {
+					return false;
+				}
+				/*
+				 * $Readonlys = count(self::$arrConnections[$Env]) - 1;
+				 * $cn = rand(1, $Readonlys);
+				 * if(isset(self::$arrConnections[$Env][$cn])) {
+				 * return self::$arrConnections[$Env][$cn];
+				 * }
+				 */
 			}
 		}
-
+		
 		public static function ListConnections(){
 			if(count(self::$arrConnections)) {
 				return array_keys(self::$arrConnections);
 			}
 		}
-
+		
 		public static function SecurityCleanUp(){
 			self::$arrConnections = null;
 		}
-	
 	}
-
+	
 	class clsDatabaseConnection {
 		public $UserName, $Password, $HostURL, $ReadOnly, $DateVersioned;
-
-		public function __construct($UserName, $Password, $HostURL, $ReadOnly, $DateVersioned){
+		
+		public function __construct($UserName, $Password, $HostURL, $ReadOnly){
 			$this->UserName = $UserName;
 			$this->Password = $Password;
 			$this->HostURL = $HostURL;
 			$this->ReadOnly = $ReadOnly;
-			$this->DateVersioned = $DateVersioned;
 		}
 	}
-
+	
 	class clsSiteConfigs {
 		public static $DefaultSite = false;
 		private static $arrSiteConfigs = array();
-
+		
 		public static function AddSiteConfig(clsSiteConfig $clsSiteConfig){
 			self::$arrSiteConfigs[$clsSiteConfig->Url] = $clsSiteConfig;
 		}
-
+		
 		public static function GetSiteConfig($OverrideHttp_Host = ''){
-			
 			$arrHttp_Host = clsSiteConfig::ParseHttp_Host($OverrideHttp_Host);
 			
 			$Url = $arrHttp_Host[0];
@@ -774,23 +791,23 @@ else {
 				}
 			}
 		}
-
+		
 		public static function ListSiteConfig(){
 			if(count(self::$arrSiteConfigs)) {
 				return array_keys(self::$arrSiteConfigs);
 			}
 		}
-
+		
 		public static function SecurityCleanUp(){
 			self::$arrSiteConfigs = null;
 		}
 	}
-
+	
 	class clsSiteConfig {
 		public $Url, $Site, $Env, $IsLocal, $WriteDatabase, $HasReadReplica, $ReadDatabase, $AllowURLOverride, $URLOverridePassKey, $SessionManager, $SessionManagerPath, $TidyUp, $ShowErrors, $ShowStats, $CDNDataHost, $CDNBucket;
 		public $IsSecure, $Http_Host, $Http_Port, $PathToHttp, $PathToSsl;
-
-		public function __construct($Url, $Site, $Env, $IsLocal, $WriteDatabase, $HasReadReplica, $ReadDatabase, $AllowURLOverride, $URLOverridePassKey, $SessionManager, $SessionManagerPath, $TidyUp, $ShowErrors, $ShowStats, $CDNDataHost, $CDNBucket){
+		
+		public function __construct($Url, $Site, $Env, $IsLocal, $WriteDatabase, $HasReadReplica, $ReadDatabase, $AllowURLOverride, $URLOverridePassKey, $SessionManager, $SessionManagerPath, $TidyUp, $ShowErrors, $ShowStats, $CDNDataHost = '', $CDNBucket = ''){
 			$this->Url = strtolower($Url);
 			$this->Site = $Site;
 			$this->Env = $Env;
@@ -862,7 +879,7 @@ else {
 			$this->CDNDataHost = $CDNDataHost;
 			$this->CDNBucket = $CDNBucket;
 		}
-
+		
 		static function ParseHttp_Host($HostToParse = ''){
 			if(!$HostToParse) {
 				$HostToParse = strtolower($_SERVER['HTTP_HOST']);
@@ -890,7 +907,7 @@ else {
 			return $arrPath;
 		}
 	}
-
+	
 	class DB {
 		public static $dbh; // Is Connected
 		public static $mysqli;
@@ -901,7 +918,7 @@ else {
 		public static $mysqli_base;
 		public static $connectionDetails_base;
 	}
-
+	
 	class Instance {
 		public static $PublicDNS;
 		public static $PublicIP;
@@ -909,20 +926,18 @@ else {
 		public static $InstanceType;
 		public static $LoggingEnabled = false;
 		public static $SQLDebug_MemcacheStarted = false;
-
+		
 		public function __construct(){
 			// DebugBreak();
-			// 
+			//
 			
 			// need to load in Memcache
-			
 			$clsMemcache = new clsMemcache(Site::$Env);
 			
 			self::$LoggingEnabled = (self::$SQLDebug_MemcacheStarted && (time() - 1500000000) < (int)cacheGet('SQLDebug') && (cacheGet('SQLDebug_Session') == 'All' || cacheGet('SQLDebug_Session') == session_id()));
 		}
-
+		
 		public static function FindInstanceDetails(){
-			
 			$client = new GuzzleHttp\Client();
 			
 			// self::$PublicDNS = shell_exec("/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-hostname");
@@ -941,9 +956,8 @@ else {
 			
 			$res = $client->request('GET', 'http://169.254.169.254/latest/meta-data/instance-type');
 			self::$InstanceType = $res->getBody();
-		
 		}
-
+		
 		public static function LoadInstanceDetails($Packed){
 			if(!$Packed) return false;
 			$arr = explode('||', $Packed);
@@ -951,7 +965,7 @@ else {
 			self::$InstanceID = $arr[1];
 			self::$InstanceType = $arr[2];
 		}
-
+		
 		public static function ExportInstanceDetails(){
 			return self::$PublicDNS . '||' . self::$InstanceID;
 			'||' . self::$InstanceType;
