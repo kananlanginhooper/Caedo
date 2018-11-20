@@ -627,7 +627,7 @@ else {
 		// URL (Site) overriding
 		static $AllowURLOverride, $URLOverridePassKey;
 		
-		// session	
+		// session
 		static $SessionManager, $SessionManagerPath;
 		
 		// Caedo flags
@@ -944,18 +944,26 @@ else {
 			// self::$PublicDNS = shell_exec("/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-ipv4");
 			// self::$InstanceID = shell_exec("/usr/bin/curl -s http://169.254.169.254/latest/meta-data/instance-id");
 			// self::$InstanceType = shell_exec("/usr/bin/curl -s http://169.254.169.254/latest/meta-data/instance-type");
-			
-			$res = $client->request('GET', 'http://169.254.169.254/latest/meta-data/public-hostname');
-			self::$PublicDNS = $res->getBody();
-			
-			$res = $client->request('GET', 'http://169.254.169.254/latest/meta-data/public-ipv4');
-			self::$PublicIP = $res->getBody();
-			
-			$res = $client->request('GET', 'http://169.254.169.254/latest/meta-data/instance-id');
-			self::$InstanceID = $res->getBody();
-			
-			$res = $client->request('GET', 'http://169.254.169.254/latest/meta-data/instance-type');
-			self::$InstanceType = $res->getBody();
+			if(Site::$IsLocal) {
+				self::$PublicDNS = Site::$Http_Host . Site::$Http_Port;
+				self::$PublicIP = Site::$Http_Host . Site::$Http_Port;
+				self::$InstanceID = 'Local';
+				self::$InstanceType = 'Local';
+			}
+			else {
+				
+				$res = $client->request('GET', 'http://169.254.169.254/latest/meta-data/public-hostname');
+				self::$PublicDNS = $res->getBody();
+				
+				$res = $client->request('GET', 'http://169.254.169.254/latest/meta-data/public-ipv4');
+				self::$PublicIP = $res->getBody();
+				
+				$res = $client->request('GET', 'http://169.254.169.254/latest/meta-data/instance-id');
+				self::$InstanceID = $res->getBody();
+				
+				$res = $client->request('GET', 'http://169.254.169.254/latest/meta-data/instance-type');
+				self::$InstanceType = $res->getBody();
+			}
 		}
 		
 		public static function LoadInstanceDetails($Packed){
