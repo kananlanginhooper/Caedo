@@ -166,14 +166,14 @@ else {
 			if(count($this->__arrJavaScript_Early_files)) {
 				krsort($this->__arrJavaScript_Early_files);
 				foreach($this->__arrJavaScript_Early_files as $JavaScriptLine) {
-					$this->__arrJavaScript_Early_Ready_For_Output[] = "<script src='" . $JavaScriptLine . "'></script>";
+					$this->__arrJavaScript_Early_Ready_For_Output[] = "<script src='" . $JavaScriptLine . "' async ></script>";
 				}
 			}
 			
 			// source
 			if(count($this->__arrJavaScript_Early_Source)) {
 				krsort($this->__arrJavaScript_Early_Source);
-				$str = "  <script> \n";
+				$str = "  <script async > \n";
 				$str .= "   $( document ).ready(function() { \n";
 				foreach($this->__arrJavaScript_Early_Source as $JavaScriptLine) {
 					$str .= '    ' . $JavaScriptLine . "\n";
@@ -216,14 +216,14 @@ else {
 			if(count($this->__arrJavaScript_Late_files)) {
 				krsort($this->__arrJavaScript_Late_files);
 				foreach($this->__arrJavaScript_Late_files as $JavaScriptLine) {
-					$this->__arrJavaScript_Late_Ready_For_Output[] = "<script src='" . $JavaScriptLine . "'></script>";
+					$this->__arrJavaScript_Late_Ready_For_Output[] = "<script src='" . $JavaScriptLine . "' async ></script>";
 				}
 			}
 			
 			// source
 			if(count($this->__arrJavaScript_Late_Source)) {
 				krsort($this->__arrJavaScript_Late_Source);
-				$str = "  <script> \n";
+				$str = "  <script async > \n";
 				$str .= "   $( document ).ready(function() { \n";
 				foreach($this->__arrJavaScript_Late_Source as $JavaScriptLine) {
 					$str .= '    ' . $JavaScriptLine . "\n";
